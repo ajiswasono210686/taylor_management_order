@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Workshop App</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#111a26">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Workshop App">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .bg-denim { background-color: #1a2536; }
+    .bg-denim-dark { background-color: #111a26; }
+    .text-copper { color: #d97736; }
+    .bg-copper { background-color: #d97736; }
+    .bg-copper:hover { background-color: #bf6326; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col md:flex-row pb-20 md:pb-0">
+
+  <!-- TOP BAR HP -->
+  <header class="md:hidden bg-denim-dark text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-30">
+    <div>
+      <span class="text-lg font-black tracking-wider app-title-display">BRKH DENIM</span>
+      <span class="text-[10px] block text-slate-400 font-medium">WORKSHOP APP</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="sync-status-mobile" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">Lokal</span>
+      <button onclick="syncDataFromCloud()" class="p-1 hover:text-amber-400"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR DESKTOP -->
+  <aside class="hidden md:flex w-64 bg-denim-dark text-slate-200 flex-col shrink-0 shadow-xl h-screen sticky top-0">
+    <div class="p-6 border-b border-slate-800">
+      <h1 class="text-2xl font-black tracking-wider text-white app-title-display">BRKH DENIM</h1>
+      <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Workshop Management</p>
+      <div class="mt-3 flex items-center justify-between text-xs bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+        <span id="sync-status-desktop" class="text-slate-300">Status: Lokal</span>
+        <button onclick="syncDataFromCloud()" title="Sinkron Ulang" class="text-amber-400 hover:text-amber-300">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+    <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <button onclick="switchTab('dashboard')" id="nav-d-dashboard" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+      </button>
+      <button onclick="switchTab('pelanggan')" id="nav-d-pelanggan" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="users" class="w-5 h-5"></i> Pelanggan & Ukuran
+      </button>
+      <button onclick="switchTab('transaksi')" id="nav-d-transaksi" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="shopping-bag" class="w-5 h-5"></i> Order & Transaksi
+      </button>
+      <button onclick="switchTab('jadwal')" id="nav-d-jadwal" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="calendar" class="w-5 h-5"></i> Jadwal & Kapasitas
+      </button>
+      <button onclick="switchTab('kasir')" id="nav-d-kasir" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="wallet" class="w-5 h-5"></i> Kasir & Buku Kas
+      </button>
+      <button onclick="switchTab('setting')" id="nav-d-setting" class="nav-d-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+        <i data-lucide="settings" class="w-5 h-5"></i> Pengaturan Toko
+      </button>
+    </nav>
+  </aside>
+
+  <!-- BOTTOM BAR MOBILE -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-denim-dark text-slate-400 flex justify-around items-center border-t border-slate-800 py-2 px-1 z-30 shadow-lg overflow-x-auto no-scrollbar">
+    <button onclick="switchTab('dashboard')" id="nav-m-dashboard" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Highlight
+    </button>
+    <button onclick="switchTab('pelanggan')" id="nav-m-pelanggan" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="users" class="w-5 h-5"></i> Pelanggan
+    </button>
+    <button onclick="switchTab('transaksi')" id="nav-m-transaksi" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="shopping-bag" class="w-5 h-5"></i> Order
+    </button>
+    <button onclick="switchTab('jadwal')" id="nav-m-jadwal" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="calendar" class="w-5 h-5"></i> Jadwal
+    </button>
+    <button onclick="switchTab('kasir')" id="nav-m-kasir" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="wallet" class="w-5 h-5"></i> Kasir
+    </button>
+    <button onclick="switchTab('setting')" id="nav-m-setting" class="nav-m-btn flex flex-col items-center gap-1 text-[10px] min-w-[60px] py-1">
+      <i data-lucide="settings" class="w-5 h-5"></i> Setting
+    </button>
+  </nav>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 w-full max-w-full p-4 sm:p-6 md:p-8 overflow-x-hidden overflow-y-auto">
+
+    <!-- 1. DASHBOARD -->
+    <section id="page-dashboard" class="tab-content space-y-4 sm:space-y-6">
+      <div class="hidden md:flex justify-between items-center pb-4 border-b border-slate-200">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Dashboard Highlight</h2>
+          <p class="text-xs text-slate-500">Ringkasan analitik operasional & performa workshop</p>
+        </div>
+        <div id="desktop-date" class="text-xs text-slate-500 font-medium"></div>
+      </div>
+
+      <!-- 4 KARTU OPERASIONAL -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Order Aktif -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Order Aktif</p>
+          <div class="flex items-center justify-between mt-1">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-800" id="stat-active-orders">0</h3>
+            <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="scissors" class="w-4 h-4 sm:w-5 sm:h-5"></i></span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Antrean & Jahit</p>
+        </div>
+
+        <!-- Beban Kapasitas Hari Ini -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Beban Hari Ini</p>
+          <div class="flex items-center justify-between mt-1">
+            <h3 class="text-base sm:text-xl font-black text-slate-800 truncate" id="stat-today-workload">0 Pt (0%)</h3>
+            <span class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="gauge" class="w-4 h-4 sm:w-5 sm:h-5"></i></span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1" id="stat-capacity-target">Target: 0 Pt</p>
+        </div>
+
+        <!-- Order Terlambat / Kritis -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Status Deadline</p>
+          <div class="flex items-center justify-between mt-1">
+            <h3 class="text-xl sm:text-2xl font-black" id="stat-late-orders">0</h3>
+            <span class="p-2 rounded-lg" id="stat-late-icon-bg"><i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5" id="stat-late-icon"></i></span>
+          </div>
+          <p class="text-[10px] mt-1" id="stat-late-label">Semua Tepat Waktu</p>
+        </div>
+
+        <!-- Total Pelanggan -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Pelanggan</p>
+          <div class="flex items-center justify-between mt-1">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-800" id="stat-total-customers">0</h3>
+            <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i></span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Terdaftar</p>
+        </div>
+      </div>
+
+      <!-- LAPORAN KEUANGAN HARIAN -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+            <i data-lucide="calendar-clock" class="w-4 h-4 text-emerald-600"></i> Keuangan Hari Ini
+          </h3>
+          <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded border border-slate-200">Reset pukul 00:00</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+            <p class="text-[10px] text-emerald-600 font-semibold uppercase">Pemasukan Masuk</p>
+            <h4 class="text-base sm:text-xl font-black text-emerald-700 mt-0.5 truncate" id="dash-today-in">Rp 0</h4>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-xl border border-rose-100">
+            <p class="text-[10px] text-rose-600 font-semibold uppercase">Pengeluaran</p>
+            <h4 class="text-base sm:text-xl font-black text-rose-700 mt-0.5 truncate" id="dash-today-out">Rp 0</h4>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <p class="text-[10px] text-slate-500 font-semibold uppercase">Saldo Bersih Hari Ini</p>
+            <h4 class="text-base sm:text-xl font-black text-slate-900 mt-0.5 truncate" id="dash-today-balance">Rp 0</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRAFIK 1: OMSET BULANAN -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+              <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-500"></i> Tren Omset Harian
+            </h3>
+            <p class="text-[11px] text-slate-400">Total pemasukan per hari di bulan berjalan</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="changeDashboardMonth(-1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <span id="dash-chart-month" class="text-xs font-bold text-slate-700 min-w-[100px] text-center bg-slate-50 px-2 py-1.5 border border-slate-200 rounded-lg">Bulan</span>
+            <button onclick="changeDashboardMonth(1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex items-end gap-1 sm:gap-1.5 h-52 w-full overflow-x-auto no-scrollbar pt-12 relative border-b border-slate-100 pb-1" id="dash-chart-bars"></div>
+        
+        <div class="mt-3 flex justify-between items-center text-xs">
+          <span class="text-slate-400">Total Omset Bulan Ini:</span>
+          <span class="text-base sm:text-lg font-black text-slate-900" id="dash-month-total">Rp 0</span>
+        </div>
+      </div>
+
+      <!-- GRAFIK 2: ANALITIK TAHUNAN -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-600"></i> Performa Tahunan (Jan - Des)
+            </h3>
+            <p class="text-[11px] text-slate-400">Perbandingan Omset (Rp) vs Volume Pesanan Custom & Reparasi (Pcs)</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="changeDashboardYear(-1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <span id="dash-chart-year" class="text-xs font-bold text-slate-700 min-w-[70px] text-center bg-slate-50 px-2 py-1.5 border border-slate-200 rounded-lg">2026</span>
+            <button onclick="changeDashboardYear(1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Legend / Petunjuk Warna -->
+        <div class="flex flex-wrap items-center gap-4 text-[11px] mb-3 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-emerald-500"></span>
+            <span class="text-slate-600 font-semibold">Omset (Rp)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-amber-500"></span>
+            <span class="text-slate-600 font-semibold">Custom (Pcs)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-blue-500"></span>
+            <span class="text-slate-600 font-semibold">Reparasi (Pcs)</span>
+          </div>
+        </div>
+
+        <!-- Container 12 Bulan -->
+        <div class="flex items-end justify-between gap-1 sm:gap-2 h-60 w-full overflow-x-auto no-scrollbar pt-14 relative border-b border-slate-100 pb-1" id="dash-year-bars"></div>
+
+        <!-- Rangkuman Total Tahunan -->
+        <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs pt-2">
+          <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+            <span class="block text-[10px] text-emerald-600 font-bold uppercase">Total Omset</span>
+            <span class="text-xs sm:text-sm font-black text-emerald-800" id="dash-year-total-omset">Rp 0</span>
+          </div>
+          <div class="p-2 bg-amber-50 rounded-lg border border-amber-100">
+            <span class="block text-[10px] text-amber-700 font-bold uppercase">Total Custom</span>
+            <span class="text-xs sm:text-sm font-black text-amber-900" id="dash-year-total-custom">0 Pcs</span>
+          </div>
+          <div class="p-2 bg-blue-50 rounded-lg border border-blue-100">
+            <span class="block text-[10px] text-blue-700 font-bold uppercase">Total Reparasi</span>
+            <span class="text-xs sm:text-sm font-black text-blue-900" id="dash-year-total-repair">0 Pcs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TARGET DEADLINE TERDEKAT -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i> Target Deadline Terdekat
+          </h3>
+          <button onclick="switchTab('transaksi')" class="text-xs font-semibold text-copper hover:underline">Lihat Semua</button>
+        </div>
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px]">
+              <tr>
+                <th class="py-2.5 px-3">Deadline</th>
+                <th class="py-2.5 px-3">Pelanggan</th>
+                <th class="py-2.5 px-3">Pekerjaan</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3 text-right">Sisa Bayar</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-urgent-list" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PELANGGAN -->
+    <section id="page-pelanggan" class="tab-content hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Database Pelanggan</h2>
+          <p class="text-xs text-slate-500">Tabel ukuran mandiri (Celana, Baju, Rok, Lain-lain)</p>
+        </div>
+        <button onclick="openCustomerModal()" class="bg-copper text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow">
+          <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pelanggan
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-3 border-b border-slate-100">
+          <input type="text" id="search-customer" oninput="renderCustomers()" placeholder="Cari nama atau WhatsApp..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-xs text-left min-w-[500px]">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Nama & Kontak</th>
+                <th class="py-2.5 px-3">Rincian Data Ukuran</th>
+                <th class="py-2.5 px-3">Total Order</th>
+                <th class="py-2.5 px-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="customer-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TRANSAKSI -->
+    <section id="page-transaksi" class="tab-content hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Order Transaksi</h2>
+          <p class="text-xs text-slate-500">Kelola pesanan jahit custom & permak denim</p>
+        </div>
+        <button onclick="openOrderModal()" class="bg-copper text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Buat Order
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-xs text-left min-w-[850px]">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">ID & Tgl</th>
+                <th class="py-2.5 px-3">Pelanggan</th>
+                <th class="py-2.5 px-3">Item Pesanan</th>
+                <th class="py-2.5 px-3 text-center">Beban Poin</th>
+                <th class="py-2.5 px-3">Total / DP</th>
+                <th class="py-2.5 px-3">Sisa Tagihan</th>
+                <th class="py-2.5 px-3">Target</th>
+                <th class="py-2.5 px-3 text-center">Status</th>
+                <th class="py-2.5 px-3 text-center">Aksi / Struk</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. JADWAL -->
+    <section id="page-jadwal" class="tab-content hidden space-y-4">
+      <div>
+        <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Jadwal & Kapasitas Harian</h2>
+        <p class="text-xs text-slate-500">Beban pengerjaan harian berdasarkan Kapasitas Poin (Nilai Fitnes)</p>
+      </div>
+
+      <!-- KALENDER -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <h3 class="font-bold text-sm sm:text-base text-slate-800" id="calendar-header-title">Kalender</h3>
+            <button onclick="goToCurrentMonth()" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-semibold transition">Bulan Ini</button>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="changeCalendarMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button onclick="changeCalendarMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 pb-2 border-b border-slate-100">
+          <span class="text-rose-500">Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+        </div>
+        <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-xs pt-2"></div>
+        <div id="calendar-selected-details" class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 hidden"></div>
+      </div>
+
+      <!-- DIAGRAM LINGKARAN PERBANDINGAN CUSTOM VS REPAIR -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-copper"></i> Proporsi Order: Custom vs Reparasi
+            </h3>
+            <p class="text-xs text-slate-400" id="chart-month-label">Bulan Berjalan</p>
+          </div>
+        </div>
+        <div id="chart-container" class="flex flex-col sm:flex-row items-center justify-around gap-6 py-2"></div>
+      </div>
+    </section>
+
+    <!-- 5. KASIR -->
+    <section id="page-kasir" class="tab-content hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Kasir & Pembukuan</h2>
+          <p class="text-xs text-slate-500">Kas masuk & pengeluaran workshop</p>
+        </div>
+        <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Catat Kas
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 sm:gap-4">
+        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-semibold text-slate-400 uppercase">Uang Masuk</p>
+          <h4 class="text-xs sm:text-base font-bold text-emerald-600 truncate mt-0.5" id="cash-in-total">Rp 0</h4>
+        </div>
+        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-semibold text-slate-400 uppercase">Uang Keluar</p>
+          <h4 class="text-xs sm:text-base font-bold text-rose-600 truncate mt-0.5" id="cash-out-total">Rp 0</h4>
+        </div>
+        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-semibold text-slate-400 uppercase">Saldo Kas</p>
+          <h4 class="text-xs sm:text-base font-bold text-slate-900 truncate mt-0.5" id="cash-balance-total">Rp 0</h4>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-xs text-left min-w-[450px]">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Tanggal</th>
+                <th class="py-2.5 px-3">Keterangan</th>
+                <th class="py-2.5 px-3">Tipe</th>
+                <th class="py-2.5 px-3 text-right">Nominal</th>
+                <th class="py-2.5 px-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="cashflow-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SETTING / PENGATURAN -->
+    <section id="page-setting" class="tab-content hidden space-y-4">
+      <div>
+        <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Pengaturan Aplikasi</h2>
+        <p class="text-xs text-slate-500">Konfigurasi profil toko, struk, kapasitas harian, dan integrasi Google Sheets</p>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-sm max-w-2xl">
+        <form id="form-config" onsubmit="saveConfig(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- Integrasi Cloud Sync -->
+            <div class="sm:col-span-2 bg-amber-50/60 border border-amber-200 p-3.5 rounded-xl">
+              <label class="block text-[11px] font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+                <i data-lucide="link" class="w-3.5 h-3.5 text-copper"></i> URL Google Apps Script (Cloud Sync)
+              </label>
+              <input type="url" id="conf-script-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-white border border-amber-300 rounded-lg px-3 py-2 text-xs text-slate-800 font-mono focus:ring-2 focus:ring-amber-500">
+              <p class="text-[10px] text-slate-500 mt-1.5 leading-relaxed">
+                Tempelkan URL Web App hasil deploy dari Google Sheets Anda di sini. Jika dikosongkan, data tetap tersimpan secara offline di perangkat ini.
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Toko / Brand</label>
+              <input type="text" id="conf-name" class="w-full border rounded-lg px-3 py-2 text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Tagline Struk</label>
+              <input type="text" id="conf-tagline" class="w-full border rounded-lg px-3 py-2 text-xs">
+            </div>
+            
+            <div class="sm:col-span-2 flex items-center gap-4 border border-slate-200 p-3 rounded-lg bg-slate-50">
+              <div class="shrink-0">
+                <img id="logo-preview" src="" class="w-12 h-12 object-contain bg-white border rounded" alt="Logo">
+              </div>
+              <div class="flex-1">
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Logo Struk (Opsional)</label>
+                <input type="file" id="conf-logo" accept="image/png, image/jpeg" class="w-full text-xs" onchange="previewLogo(event)">
+                <p class="text-[9px] text-slate-500 mt-0.5">Maksimal 500kb agar penyimpanan tidak penuh.</p>
+              </div>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Alamat Lengkap</label>
+              <input type="text" id="conf-address" class="w-full border rounded-lg px-3 py-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Nomor WhatsApp Admin</label>
+              <input type="text" id="conf-phone" class="w-full border rounded-lg px-3 py-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Sosial Media (IG/TikTok)</label>
+              <input type="text" id="conf-socmed" class="w-full border rounded-lg px-3 py-2 text-xs">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Kapasitas Harian Maksimal (Poin / Pcs / Jam Kerja)</label>
+              <input type="number" id="conf-capacity" min="1" class="w-full border rounded-lg px-3 py-2 text-xs font-bold text-amber-700" placeholder="Misal: 20">
+              <p class="text-[9px] text-slate-500 mt-1">Batas maksimal beban per hari untuk menghitung % di kalender (fleksibel: bisa diartikan total poin, pcs, atau jam kerja).</p>
+            </div>
+          </div>
+          <div class="pt-4 border-t mt-4 flex justify-between items-center">
+            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-xs font-bold w-full sm:w-auto transition">
+              Simpan Pengaturan
+            </button>
+            <button type="button" onclick="testConnection()" class="text-xs font-semibold text-copper hover:underline hidden sm:inline-block">
+              Tes Koneksi Cloud
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL PELANGGAN -->
+  <div id="modal-customer" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-900 mb-2" id="customer-modal-title">Tambah Pelanggan Baru</h3>
+      
+      <form id="form-customer" onsubmit="saveCustomer(event)" class="space-y-4">
+        <input type="hidden" id="cust-id">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Lengkap *</label>
+            <input type="text" id="cust-name" required placeholder="Nama pelanggan" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">No. WhatsApp / HP *</label>
+            <input type="tel" id="cust-phone" required placeholder="08xxxxxxxxxx" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex border-b border-slate-200 text-xs font-semibold space-x-2">
+            <button type="button" onclick="switchSizeTab('pants')" id="tab-btn-pants" class="size-tab-btn py-2 px-3 border-b-2 border-amber-600 text-amber-700">Tabel Celana</button>
+            <button type="button" onclick="switchSizeTab('shirt')" id="tab-btn-shirt" class="size-tab-btn py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Tabel Baju</button>
+            <button type="button" onclick="switchSizeTab('skirt')" id="tab-btn-skirt" class="size-tab-btn py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Tabel Rok</button>
+            <button type="button" onclick="switchSizeTab('others')" id="tab-btn-others" class="size-tab-btn py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Tabel Lain-lain</button>
+          </div>
+
+          <div id="size-pane-pants" class="size-pane pt-3 space-y-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Waist</label><input type="text" id="p-waist" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Front Rise</label><input type="text" id="p-frontrise" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Back Rise</label><input type="text" id="p-backrise" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Hip</label><input type="text" id="p-hip" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Thigh</label><input type="text" id="p-thigh" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Knee</label><input type="text" id="p-knee" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Leg Opening</label><input type="text" id="p-legopening" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Inseam</label><input type="text" id="p-inseam" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Length</label><input type="text" id="p-length" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Catatan Pola</label>
+              <input type="text" id="p-notes" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+
+          <div id="size-pane-shirt" class="size-pane pt-3 space-y-2 hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lebar Bahu</label><input type="text" id="s-lebar-bahu" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lingkar Dada</label><input type="text" id="s-lingkar-dada" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Panjang Baju</label><input type="text" id="s-panjang-baju" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Panjang Lengan</label><input type="text" id="s-panjang-lengan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Kerung Lengan</label><input type="text" id="s-kerung-lengan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Pergelangan Tangan</label><input type="text" id="s-pergelangan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lingkar Perut</label><input type="text" id="s-lingkar-perut" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Catatan Pola</label>
+              <input type="text" id="s-catatan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+
+          <div id="size-pane-skirt" class="size-pane pt-3 space-y-2 hidden">
+            <div class="grid grid-cols-2 gap-2.5">
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lingkar Pinggang</label><input type="text" id="sk-lingkar-pinggang" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lingkar Pinggul</label><input type="text" id="sk-lingkar-pinggul" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Panjang Rok</label><input type="text" id="sk-panjang-rok" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Lebar Bawah</label><input type="text" id="sk-lebar-bawah" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Catatan Pola Rok</label>
+              <input type="text" id="sk-catatan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+
+          <div id="size-pane-others" class="size-pane pt-3 space-y-2 hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Nama Barang / Aksesoris</label><input type="text" id="o-nama-barang" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+              <div><label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Dimensi / Ukuran</label><input type="text" id="o-dimensi" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></div>
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-semibold mb-0.5">Rincian & Catatan</label>
+              <textarea id="o-catatan" rows="3" class="w-full border rounded-lg px-2.5 py-1.5 text-xs"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('modal-customer')" class="px-3 py-2 border rounded-lg text-slate-600 text-xs">Batal</button>
+          <button type="submit" class="bg-copper text-white px-5 py-2 rounded-lg text-xs font-semibold">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ORDER -->
+  <div id="modal-order" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-900 mb-3" id="order-modal-title">Buat Order Transaksi Baru</h3>
+      <form id="form-order" onsubmit="saveOrder(event)" class="space-y-4">
+        <input type="hidden" id="order-id">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Pelanggan *</label>
+            <select id="order-customer" required class="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs focus:ring-2 focus:ring-amber-500"></select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tanggal Masuk *</label>
+            <input type="date" id="order-date-in" required class="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700">Rincian Item Pesanan</label>
+            </div>
+            <button type="button" onclick="addOrderItemRow()" class="text-xs bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-100 px-2.5 py-1 rounded-lg font-bold">+ Item</button>
+          </div>
+          <div id="order-items-list" class="space-y-2.5"></div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-1">Total Beban / Kapasitas</label>
+            <div class="flex items-center gap-1">
+              <span id="order-points-total" class="font-black text-amber-700 text-sm">0</span>
+              <span class="text-[10px] text-slate-400">Poin</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-1">Total Biaya (Rp)</label>
+            <input type="number" id="order-total" readonly class="w-full bg-white border rounded-lg px-2 py-1.5 font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-1">DP / Terbayar (Rp)</label>
+            <input type="number" id="order-dp" oninput="calculateBalance()" value="0" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 font-semibold text-emerald-600">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 mb-1">Sisa Tagihan (Rp)</label>
+            <input type="number" id="order-remaining" readonly class="w-full bg-white border rounded-lg px-2 py-1.5 font-black text-rose-600">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Target Selesai *</label>
+            <input type="date" id="order-date-due" required class="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Pengerjaan</label>
+            <select id="order-status" class="w-full border border-slate-300 rounded-lg px-2.5 py-2 text-xs">
+              <option value="diterima">Diterima</option>
+              <option value="proses">Proses</option>
+              <option value="selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('modal-order')" class="px-3 py-2 border rounded-lg text-slate-600 text-xs">Batal</button>
+          <button type="submit" class="bg-copper text-white px-5 py-2 rounded-lg text-xs font-semibold">Simpan Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL KASIR -->
+  <div id="modal-cash" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-4 sm:p-6 shadow-2xl">
+      <h3 class="text-base font-bold text-slate-900 mb-3">Catat Kas Masuk / Keluar</h3>
+      <form id="form-cash" onsubmit="saveCashflow(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tanggal</label>
+          <input type="date" id="cash-date" required class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipe Transaksi</label>
+          <select id="cash-type" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+            <option value="in">Uang Masuk (Pemasukan)</option>
+            <option value="out">Uang Keluar (Operasional / Bahan)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Keterangan</label>
+          <input type="text" id="cash-desc" required placeholder="Contoh: Beli bahan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nominal (Rp)</label>
+          <input type="number" id="cash-amount" min="1" required class="w-full border rounded-lg px-2.5 py-1.5 text-xs font-semibold">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('modal-cash')" class="px-3 py-2 border rounded-lg text-slate-600 text-xs">Batal</button>
+          <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold">Simpan Kas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // State Konfigurasi Toko (Tersimpan dinamis di LocalStorage masing-masing pengguna)
+    let appConfig = JSON.parse(localStorage.getItem('brkh_config')) || {
+      storeName: "BRKH DENIM",
+      tagline: "RAW, AUTHENTIC, DURABLE",
+      address: "Jl. Gajayana 21 B Malang",
+      phone: "085648492858",
+      socialMedia: "@brkhdenim",
+      dailyCapacity: 20,
+      scriptUrl: "", // URL Google Apps Script fleksibel per pengguna
+      logo: ""
+    };
+    
+    let currentLogoBase64 = appConfig.logo || "";
+
+    // Ambil Script URL aktif
+    function getActiveScriptUrl() {
+      return (appConfig.scriptUrl || "").trim();
+    }
+
+    // Data in-memory
+    let customers = JSON.parse(localStorage.getItem('brkh_customers')) || [];
+    let orders = JSON.parse(localStorage.getItem('brkh_orders')) || [];
+    let cashflow = JSON.parse(localStorage.getItem('brkh_cashflow')) || [];
+    let sizePants = JSON.parse(localStorage.getItem('brkh_size_pants')) || [];
+    let sizeShirts = JSON.parse(localStorage.getItem('brkh_size_shirts')) || [];
+    let sizeSkirts = JSON.parse(localStorage.getItem('brkh_size_skirts')) || [];
+    let sizeOthers = JSON.parse(localStorage.getItem('brkh_size_others')) || [];
+
+    // State Navigasi Tanggal & Chart
+    let calendarCurrentDate = new Date();
+    let dashChartDate = new Date();
+    let dashYearDate = new Date();
+
+    const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
+
+    function cleanDateStr(d) {
+      if (!d) return '';
+      if (d instanceof Date) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+      let str = String(d).trim();
+      if (str.includes('T')) {
+        const dateObj = new Date(str);
+        if (!isNaN(dateObj.getTime())) {
+          return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        }
+        str = str.split('T')[0];
+      }
+      if (str.includes('/')) {
+        const parts = str.split('/');
+        if (parts.length === 3) {
+          if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+          else if (parts[2].length === 4) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+      }
+      if (str.includes('-')) {
+        const parts = str.split('-');
+        if (parts.length === 3 && parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+      }
+      return str;
+    }
+
+    function checkIsLate(order) {
+      if (order.status === 'selesai') return false;
+      const due = cleanDateStr(order.dateDue);
+      if (!due || due.length !== 10) return false;
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      return due < todayStr;
+    }
+
+    function updateSyncUI(text, isError = false) {
+      const mob = document.getElementById('sync-status-mobile');
+      const desk = document.getElementById('sync-status-desktop');
+      if (mob) {
+        mob.innerText = text;
+        mob.className = `text-[10px] px-2 py-0.5 rounded-full border ${isError ? 'bg-rose-900/60 border-rose-700 text-rose-200' : 'bg-slate-800 border-slate-700 text-slate-300'}`;
+      }
+      if (desk) {
+        desk.innerText = `Status: ${text}`;
+        desk.className = isError ? 'text-rose-400 font-medium' : 'text-slate-300';
+      }
+    }
+
+    // SINKRONISASI CLOUD DARI URL AKTIF PENGGUNA
+    async function syncDataFromCloud() {
+      const scriptUrl = getActiveScriptUrl();
+      if (!scriptUrl) { 
+        updateSyncUI("Lokal (Belum Sync)"); 
+        return; 
+      }
+      updateSyncUI("Sinkron...");
+      try {
+        const res = await fetch(scriptUrl);
+        const data = await res.json();
+        
+        customers = data.customers || [];
+        orders = (data.orders || []).map(o => ({ ...o, dateIn: cleanDateStr(o.dateIn), dateDue: cleanDateStr(o.dateDue) }));
+        cashflow = (data.cashflow || []).map(c => ({ ...c, date: cleanDateStr(c.date) }));
+        sizePants = data.sizePants || []; 
+        sizeShirts = data.sizeShirts || []; 
+        sizeSkirts = data.sizeSkirts || []; 
+        sizeOthers = data.sizeOthers || [];
+        
+        if (data.appConfig) {
+          const preservedUrl = appConfig.scriptUrl;
+          appConfig = data.appConfig;
+          appConfig.scriptUrl = preservedUrl; // Jangan timpa URL lokal
+        }
+        
+        saveLocalData();
+        updateSyncUI("Tersinkron");
+        refreshAll();
+        loadConfigUI();
+      } catch (err) {
+        console.error("Sinkron gagal:", err);
+        updateSyncUI("Gagal Sinkron", true);
+      }
+    }
+
+    function saveLocalData() {
+      localStorage.setItem('brkh_customers', JSON.stringify(customers));
+      localStorage.setItem('brkh_orders', JSON.stringify(orders));
+      localStorage.setItem('brkh_cashflow', JSON.stringify(cashflow));
+      localStorage.setItem('brkh_size_pants', JSON.stringify(sizePants));
+      localStorage.setItem('brkh_size_shirts', JSON.stringify(sizeShirts));
+      localStorage.setItem('brkh_size_skirts', JSON.stringify(sizeSkirts));
+      localStorage.setItem('brkh_size_others', JSON.stringify(sizeOthers));
+      localStorage.setItem('brkh_config', JSON.stringify(appConfig));
+    }
+
+    async function saveData() {
+      saveLocalData();
+      refreshAll();
+      const scriptUrl = getActiveScriptUrl();
+      if (scriptUrl) {
+        updateSyncUI("Menyimpan...");
+        try {
+          await fetch(scriptUrl, {
+            method: 'POST', 
+            mode: 'no-cors', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ 
+              action: 'saveAll', 
+              data: { customers, orders, cashflow, sizePants, sizeShirts, sizeSkirts, sizeOthers, appConfig } 
+            })
+          });
+          updateSyncUI("Tersimpan");
+        } catch (err) {
+          console.error("Gagal kirim ke Google Sheets:", err);
+          updateSyncUI("Tersimpan di HP", true);
+        }
+      }
+    }
+
+    async function testConnection() {
+      const url = (document.getElementById('conf-script-url')?.value || "").trim();
+      if (!url) {
+        alert("Masukkan URL Google Apps Script terlebih dahulu.");
+        return;
+      }
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && typeof data === 'object') {
+          alert("Koneksi Berhasil! Google Apps Script siap digunakan.");
+        } else {
+          alert("Respons diterima tetapi format data tidak sesuai.");
+        }
+      } catch (e) {
+        alert("Gagal terhubung. Pastikan URL benar dan saat deploy diset 'Who has access: Anyone'.");
+      }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-d-btn').forEach(el => el.classList.remove('bg-amber-600', 'text-white'));
+      document.querySelectorAll('.nav-m-btn').forEach(el => el.classList.remove('text-amber-500', 'font-bold'));
+      
+      const page = document.getElementById('page-' + tab);
+      if (page) page.classList.remove('hidden');
+      
+      const deskBtn = document.getElementById('nav-d-' + tab);
+      if (deskBtn) deskBtn.classList.add('bg-amber-600', 'text-white');
+      
+      const mobBtn = document.getElementById('nav-m-' + tab);
+      if (mobBtn) mobBtn.classList.add('text-amber-500', 'font-bold');
+      
+      refreshAll();
+    }
+
+    function switchSizeTab(tab) {
+      document.querySelectorAll('.size-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.size-tab-btn').forEach(el => {
+        el.classList.remove('border-amber-600', 'text-amber-700'); 
+        el.classList.add('border-transparent', 'text-slate-500');
+      });
+      const pane = document.getElementById('size-pane-' + tab);
+      const btn = document.getElementById('tab-btn-' + tab);
+      if (pane) pane.classList.remove('hidden');
+      if (btn) { 
+        btn.classList.add('border-amber-600', 'text-amber-700'); 
+        btn.classList.remove('border-transparent', 'text-slate-500'); 
+      }
+    }
+
+    function openModal(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); }
+    function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); }
+
+    function loadConfigUI() {
+      document.querySelectorAll('.app-title-display').forEach(el => el.innerText = appConfig.storeName || "BRKH DENIM");
+      const cName = document.getElementById('conf-name'); if (cName) cName.value = appConfig.storeName || "";
+      const cTag = document.getElementById('conf-tagline'); if (cTag) cTag.value = appConfig.tagline || "";
+      const cAddr = document.getElementById('conf-address'); if (cAddr) cAddr.value = appConfig.address || "";
+      const cPhn = document.getElementById('conf-phone'); if (cPhn) cPhn.value = appConfig.phone || "";
+      const cSoc = document.getElementById('conf-socmed'); if (cSoc) cSoc.value = appConfig.socialMedia || "";
+      const cCap = document.getElementById('conf-capacity'); if (cCap) cCap.value = appConfig.dailyCapacity || 20;
+      const cUrl = document.getElementById('conf-script-url'); if (cUrl) cUrl.value = appConfig.scriptUrl || "";
+      const lPrev = document.getElementById('logo-preview'); if (lPrev) lPrev.src = appConfig.logo || "";
+    }
+
+    function previewLogo(event) {
+      const file = event.target.files[0];
+      if (file) {
+        if (file.size > 500000) { alert("Ukuran file maksimal 500kb."); event.target.value = ""; return; }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentLogoBase64 = e.target.result;
+          const lPrev = document.getElementById('logo-preview');
+          if (lPrev) lPrev.src = currentLogoBase64;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveConfig(e) {
+      e.preventDefault();
+      const oldUrl = appConfig.scriptUrl;
+      const newUrl = (document.getElementById('conf-script-url')?.value || "").trim();
+
+      appConfig = {
+        storeName: document.getElementById('conf-name').value,
+        tagline: document.getElementById('conf-tagline').value,
+        address: document.getElementById('conf-address').value,
+        phone: document.getElementById('conf-phone').value,
+        socialMedia: document.getElementById('conf-socmed').value,
+        dailyCapacity: Number(document.getElementById('conf-capacity').value) || 20,
+        scriptUrl: newUrl,
+        logo: currentLogoBase64
+      };
+      
+      saveLocalData();
+      alert("Pengaturan Toko berhasil disimpan!");
+      loadConfigUI();
+
+      if (newUrl) {
+        syncDataFromCloud();
+      } else {
+        updateSyncUI("Lokal");
+      }
+    }
+
+    function openCustomerModal(id = null) {
+      document.getElementById('form-customer').reset();
+      document.getElementById('cust-id').value = id || '';
+      document.getElementById('customer-modal-title').innerText = id ? 'Edit Data Pelanggan' : 'Tambah Pelanggan Baru';
+      switchSizeTab('pants');
+      if (id) {
+        const c = customers.find(x => x.id === id);
+        if (c) {
+          document.getElementById('cust-name').value = c.name || '';
+          document.getElementById('cust-phone').value = c.phone || '';
+          const p = sizePants.find(x => x.customerId === id) || {};
+          ['waist','frontrise','backrise','hip','thigh','knee','legopening','inseam','length','notes'].forEach(k => {
+            const el = document.getElementById('p-'+k); 
+            if(el) el.value = p[k==='frontrise'?'frontRise':k==='backrise'?'backRise':k==='legopening'?'legOpening':k] || '';
+          });
+          const s = sizeShirts.find(x => x.customerId === id) || {};
+          ['lebar-bahu','lingkar-dada','panjang-baju','panjang-lengan','kerung-lengan','pergelangan','lingkar-perut','catatan'].forEach(k => {
+            const el = document.getElementById('s-'+k); 
+            if(el) el.value = s[k.replace(/-([a-z])/g, g => g[1].toUpperCase())] || '';
+          });
+          const sk = sizeSkirts.find(x => x.customerId === id) || {};
+          ['lingkar-pinggang','lingkar-pinggul','panjang-rok','lebar-bawah','catatan'].forEach(k => {
+            const el = document.getElementById('sk-'+k); 
+            if(el) el.value = sk[k.replace(/-([a-z])/g, g => g[1].toUpperCase())] || '';
+          });
+          const o = sizeOthers.find(x => x.customerId === id) || {};
+          ['nama-barang','dimensi','catatan'].forEach(k => {
+            const el = document.getElementById('o-'+k); 
+            if(el) el.value = o[k.replace(/-([a-z])/g, g => g[1].toUpperCase())] || '';
+          });
+        }
+      }
+      openModal('modal-customer');
+    }
+
+    function saveCustomer(e) {
+      e.preventDefault();
+      const id = document.getElementById('cust-id').value || 'C-' + Date.now().toString().slice(-4);
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+
+      let cleanPhone = phone.replace(/\D/g, '');
+      if (cleanPhone.startsWith('62')) cleanPhone = '0' + cleanPhone.slice(2);
+
+      const isDuplicate = customers.some(c => {
+        let existingClean = (c.phone || '').replace(/\D/g, '');
+        if (existingClean.startsWith('62')) existingClean = '0' + existingClean.slice(2);
+        return existingClean === cleanPhone && c.id !== id;
+      });
+
+      if (isDuplicate) {
+        const existingCust = customers.find(c => {
+          let existingClean = (c.phone || '').replace(/\D/g, '');
+          if (existingClean.startsWith('62')) existingClean = '0' + existingClean.slice(2);
+          return existingClean === cleanPhone;
+        });
+        alert(`Nomor WhatsApp/HP ${phone} sudah terdaftar atas nama "${existingCust ? existingCust.name : 'Pelanggan Lain'}"!\nSilakan gunakan nomor lain atau edit data pelanggan yang sudah ada.`);
+        document.getElementById('cust-phone').focus();
+        return;
+      }
+
+      const custData = { id, name, phone };
+      const cIdx = customers.findIndex(x => x.id === id);
+      if (cIdx !== -1) customers[cIdx] = custData; else customers.push(custData);
+
+      const pantsData = { 
+        id: 'PNT-' + id, 
+        customerId: id, 
+        waist: document.getElementById('p-waist').value, 
+        frontRise: document.getElementById('p-frontrise').value, 
+        backRise: document.getElementById('p-backrise').value, 
+        hip: document.getElementById('p-hip').value, 
+        thigh: document.getElementById('p-thigh').value, 
+        knee: document.getElementById('p-knee').value, 
+        legOpening: document.getElementById('p-legopening').value, 
+        inseam: document.getElementById('p-inseam').value, 
+        length: document.getElementById('p-length').value, 
+        notes: document.getElementById('p-notes').value 
+      };
+      const pIdx = sizePants.findIndex(x => x.customerId === id);
+      if (pIdx !== -1) sizePants[pIdx] = pantsData; else sizePants.push(pantsData);
+
+      const shirtData = { 
+        id: 'SHR-' + id, 
+        customerId: id, 
+        lebarBahu: document.getElementById('s-lebar-bahu').value, 
+        lingkarDada: document.getElementById('s-lingkar-dada').value, 
+        panjangBaju: document.getElementById('s-panjang-baju').value, 
+        panjangLengan: document.getElementById('s-panjang-lengan').value, 
+        kerungLengan: document.getElementById('s-kerung-lengan').value, 
+        pergelangan: document.getElementById('s-pergelangan').value, 
+        lingkarPerut: document.getElementById('s-lingkar-perut').value, 
+        catatan: document.getElementById('s-catatan').value 
+      };
+      const sIdx = sizeShirts.findIndex(x => x.customerId === id);
+      if (sIdx !== -1) sizeShirts[sIdx] = shirtData; else sizeShirts.push(shirtData);
+
+      const skirtData = { 
+        id: 'SKR-' + id, 
+        customerId: id, 
+        lingkarPinggang: document.getElementById('sk-lingkar-pinggang').value, 
+        lingkarPinggul: document.getElementById('sk-lingkar-pinggul').value, 
+        panjangRok: document.getElementById('sk-panjang-rok').value, 
+        lebarBawah: document.getElementById('sk-lebar-bawah').value, 
+        catatan: document.getElementById('sk-catatan').value 
+      };
+      const skIdx = sizeSkirts.findIndex(x => x.customerId === id);
+      if (skIdx !== -1) sizeSkirts[skIdx] = skirtData; else sizeSkirts.push(skirtData);
+
+      const otherData = { 
+        id: 'OTH-' + id, 
+        customerId: id, 
+        namaBarang: document.getElementById('o-nama-barang').value, 
+        dimensi: document.getElementById('o-dimensi').value, 
+        catatan: document.getElementById('o-catatan').value 
+      };
+      const oIdx = sizeOthers.findIndex(x => x.customerId === id);
+      if (oIdx !== -1) sizeOthers[oIdx] = otherData; else sizeOthers.push(otherData);
+
+      saveData();
+      closeModal('modal-customer');
+    }
+
+    // BUAT ORDER CEPAT DARI DATA PELANGGAN
+    function createOrderForCustomer(customerId) {
+      openOrderModal(null, customerId);
+    }
+
+    function renderCustomers() {
+      const q = (document.getElementById('search-customer')?.value || '').toLowerCase();
+      const tbody = document.getElementById('customer-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      customers.filter(c => (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)).forEach(c => {
+        const p = sizePants.find(x => x.customerId === c.id);
+        const s = sizeShirts.find(x => x.customerId === c.id);
+        
+        let pantsSum = p && (p.waist || p.length) ? `W:${p.waist||'-'} | FR:${p.frontRise||'-'} | BR:${p.backRise||'-'} | L:${p.length||'-'}` : '-';
+        let shirtSum = s && (s.lingkarDada || s.panjangBaju) ? `Dada:${s.lingkarDada||'-'} | Bahu:${s.lebarBahu||'-'} | Pjg:${s.panjangBaju||'-'}` : '-';
+        
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100">
+            <td class="py-2.5 px-3"><span class="font-bold">${c.name}</span><br><span class="text-[10px] text-slate-500">${c.phone}</span></td>
+            <td class="py-2.5 px-3 text-[10px] text-slate-600">
+              <details class="cursor-pointer"><summary class="font-semibold text-amber-700 hover:underline">Rincian Ukuran</summary>
+                <div class="mt-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1 text-[11px]">
+                  <div><b>[Celana]:</b> ${pantsSum}</div><div><b>[Baju]:</b> ${shirtSum}</div>
+                </div>
+              </details>
+            </td>
+            <td class="py-2.5 px-3 font-semibold text-slate-700">${orders.filter(o => o.customerId === c.id).length} order</td>
+            <td class="py-2.5 px-3 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="createOrderForCustomer('${c.id}')" title="Buat Order untuk ${c.name}" class="bg-copper/10 hover:bg-copper text-copper hover:text-white px-2 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Order
+                </button>
+                <button onclick="openCustomerModal('${c.id}')" title="Edit Data Pelanggan" class="text-amber-600 hover:bg-amber-50 p-1.5 rounded-md transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    function openOrderModal(orderId = null, prefillCustomerId = null) {
+      document.getElementById('form-order').reset();
+      const selectCust = document.getElementById('order-customer');
+      selectCust.innerHTML = '<option value="">-- Pilih Pelanggan --</option>';
+      customers.forEach(c => selectCust.innerHTML += `<option value="${c.id}">${c.name} (${c.phone})</option>`);
+      document.getElementById('order-items-list').innerHTML = '';
+
+      if (orderId) {
+        const o = orders.find(x => x.id === orderId);
+        if (!o) return;
+        document.getElementById('order-modal-title').innerText = `Edit Order: ${o.id}`;
+        document.getElementById('order-id').value = o.id;
+        document.getElementById('order-customer').value = o.customerId;
+        document.getElementById('order-date-in').value = cleanDateStr(o.dateIn);
+        document.getElementById('order-date-due').value = cleanDateStr(o.dateDue);
+        document.getElementById('order-status').value = o.status;
+        document.getElementById('order-dp').value = o.dp || 0;
+        if (o.items && o.items.length > 0) {
+          o.items.forEach(it => addOrderItemRow(it.type || 'custom', it.material || '', it.point || 5, it.price || 0, it.desc || ''));
+        } else {
+          addOrderItemRow();
+        }
+      } else {
+        document.getElementById('order-modal-title').innerText = 'Buat Order Transaksi Baru';
+        document.getElementById('order-id').value = '';
+        document.getElementById('order-date-in').value = new Date().toISOString().split('T')[0];
+        if (prefillCustomerId) {
+          selectCust.value = prefillCustomerId;
+        }
+        addOrderItemRow();
+      }
+      openModal('modal-order');
+    }
+
+    function addOrderItemRow(type = 'custom', material = '', point = 5, price = 0, desc = '') {
+      const container = document.getElementById('order-items-list');
+      const div = document.createElement('div');
+      div.className = 'order-item-row p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative';
+      div.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div>
+            <label class="block text-[10px] text-slate-500 font-semibold mb-0.5">Jenis</label>
+            <select class="order-item-type w-full border rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-amber-500">
+              <option value="custom" ${type === 'custom' ? 'selected' : ''}>Custom</option>
+              <option value="repair" ${type === 'repair' ? 'selected' : ''}>Repair</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-500 font-semibold mb-0.5">Bahan</label>
+            <input type="text" placeholder="Contoh: Denim 14oz" value="${material}" class="order-item-material w-full border rounded-lg px-2 py-1.5" required>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-500 font-semibold mb-0.5">Beban / Poin / Jam</label>
+            <input type="number" min="0" step="any" value="${point}" oninput="calculateOrderTotal()" class="order-item-point w-full border rounded-lg px-2 py-1.5 font-bold text-amber-700" required>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-500 font-semibold mb-0.5">Harga</label>
+            <input type="number" value="${price}" oninput="calculateOrderTotal()" class="order-item-price w-full border rounded-lg px-2 py-1.5 font-bold" required>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" placeholder="Catatan instruksi pola (opsional)" value="${desc}" class="order-item-desc flex-1 border rounded-lg px-2.5 py-1 text-xs">
+          <button type="button" onclick="removeOrderItemRow(this)" class="text-rose-500 hover:bg-rose-100 p-1.5 rounded transition" title="Hapus Item">
+            <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(div);
+      lucide.createIcons();
+      calculateOrderTotal();
+    }
+
+    function removeOrderItemRow(btn) {
+      const row = btn.closest('.order-item-row');
+      if (row) {
+        row.remove();
+        calculateOrderTotal();
+        const container = document.getElementById('order-items-list');
+        if (container.children.length === 0) addOrderItemRow();
+      }
+    }
+
+    function calculateOrderTotal() {
+      let tot = 0, pts = 0;
+      document.querySelectorAll('.order-item-price').forEach(i => tot += Number(i.value) || 0);
+      document.querySelectorAll('.order-item-point').forEach(i => pts += Math.max(0, Number(i.value) || 0));
+      document.getElementById('order-total').value = tot;
+      document.getElementById('order-points-total').innerText = pts;
+      calculateBalance();
+    }
+
+    function calculateBalance() {
+      const tot = Number(document.getElementById('order-total').value) || 0;
+      const dp = Number(document.getElementById('order-dp').value) || 0;
+      document.getElementById('order-remaining').value = Math.max(0, tot - dp);
+    }
+
+    function saveOrder(e) {
+      e.preventDefault();
+      const editId = document.getElementById('order-id').value;
+      const customerId = document.getElementById('order-customer').value;
+      const customer = customers.find(c => c.id === customerId);
+
+      const items = [];
+      const typs = document.querySelectorAll('.order-item-type');
+      const mats = document.querySelectorAll('.order-item-material');
+      const pts = document.querySelectorAll('.order-item-point');
+      const prcs = document.querySelectorAll('.order-item-price');
+      const dscs = document.querySelectorAll('.order-item-desc');
+      let totalPts = 0;
+
+      for (let i = 0; i < typs.length; i++) {
+        let pt = Math.max(0, Number(pts[i].value) || 0);
+        totalPts += pt;
+        items.push({
+          type: typs[i].value,
+          material: mats[i].value,
+          point: pt,
+          price: Number(prcs[i].value) || 0,
+          desc: dscs[i].value || ''
+        });
+      }
+
+      const total = Number(document.getElementById('order-total').value) || 0;
+      const dp = Number(document.getElementById('order-dp').value) || 0;
+      const remaining = Number(document.getElementById('order-remaining').value) || 0;
+      const dateIn = cleanDateStr(document.getElementById('order-date-in').value);
+      const dateDue = cleanDateStr(document.getElementById('order-date-due').value);
+      const status = document.getElementById('order-status').value;
+
+      if (editId) {
+        const idx = orders.findIndex(o => o.id === editId);
+        if (idx !== -1) {
+          orders[idx].customerId = customerId;
+          orders[idx].customerName = customer ? customer.name : 'Unknown';
+          orders[idx].dateIn = dateIn;
+          orders[idx].dateDue = dateDue;
+          orders[idx].items = items;
+          orders[idx].totalPoints = totalPts;
+          orders[idx].total = total;
+          orders[idx].dp = dp;
+          orders[idx].remaining = remaining;
+          orders[idx].status = status;
+        }
+      } else {
+        const newOrderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+        const orderData = {
+          id: newOrderId,
+          customerId: customerId,
+          customerName: customer ? customer.name : 'Unknown',
+          dateIn: dateIn,
+          dateDue: dateDue,
+          items: items,
+          totalPoints: totalPts,
+          total: total,
+          dp: dp,
+          remaining: remaining,
+          status: status
+        };
+        orders.push(orderData);
+
+        if (dp > 0) {
+          cashflow.unshift({
+            id: Date.now(),
+            date: dateIn || cleanDateStr(new Date()),
+            type: 'in',
+            desc: `DP Order ${newOrderId} - ${orderData.customerName}`,
+            amount: dp
+          });
+        }
+      }
+
+      saveData();
+      closeModal('modal-order');
+    }
+
+    function deleteOrder(id) {
+      if (confirm(`Yakin ingin menghapus pesanan ${id}?`)) {
+        orders = orders.filter(o => o.id !== id);
+        saveData();
+      }
+    }
+
+    function settleOrder(id) {
+      const order = orders.find(o => o.id === id);
+      if (!order) return;
+
+      const remainingAmount = Number(order.remaining) || 0;
+      if (remainingAmount <= 0) {
+        alert("Pesanan ini sudah lunas.");
+        return;
+      }
+
+      if (confirm(`Lunasi pesanan ${order.id} (${order.customerName}) sebesar ${formatRp(remainingAmount)}?\nUang pelunasan akan otomatis dicatat ke Buku Kas.`)) {
+        const today = cleanDateStr(new Date());
+
+        cashflow.unshift({
+          id: Date.now(),
+          date: today,
+          type: 'in',
+          desc: `Pelunasan ${order.id} - ${order.customerName}`,
+          amount: remainingAmount
+        });
+
+        order.dp = Number(order.total) || (Number(order.dp) + remainingAmount);
+        order.remaining = 0;
+
+        saveData();
+      }
+    }
+
+    function updateOrderStatus(id, newStatus) {
+      const order = orders.find(o => o.id === id);
+      if (!order) return;
+
+      if (newStatus === 'selesai' && Number(order.remaining) > 0) {
+        if (confirm(`Pesanan ${order.id} selesai. Apakah sisa tagihan ${formatRp(order.remaining)} ingin langsung dilunasi dan dicatat ke kas masuk?`)) {
+          settleOrder(id);
+          return;
+        }
+      }
+
+      order.status = newStatus;
+      saveData();
+    }
+
+    function printOrderReceipt(orderId) {
+      const o = orders.find(x => x.id === orderId);
+      if (!o) return;
+      const c = customers.find(x => x.id === o.customerId) || {};
+      const itemsHtml = (o.items || []).map((it, i) => `
+        <tr>
+          <td style="text-align: center; padding: 6px;">${i+1}</td>
+          <td style="padding: 6px;"><b>[${it.type}]</b> ${it.material} ${it.desc?`<br><small>${it.desc}</small>`:''}</td>
+          <td style="text-align: center; padding: 6px;">${it.point} pt</td>
+          <td style="text-align: right; padding: 6px;">${formatRp(it.price)}</td>
+        </tr>
+      `).join('');
+      
+      const logoHtml = appConfig.logo ? `<img src="${appConfig.logo}" style="max-height: 45px; margin-right: 12px; object-fit: contain;">` : '';
+
+      const pr = window.open('', '_blank');
+      pr.document.write(`
+        <html><head><title>Struk_${o.id}</title><style>
+        @page { size: A5 portrait; margin: 10mm 12mm; } body { font-family: sans-serif; font-size: 10pt; line-height: 1.4; color: #1e293b; }
+        .header { border-bottom: 2px solid #1a2536; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; } th { background-color: #1a2536; color: white; padding: 6px; text-align: left; }
+        td { padding: 4px 0; border-bottom: 1px solid #eee; } .tot td { border: none; padding: 4px; }
+        </style></head><body>
+          <div class="header">
+            <div style="display: flex; align-items: center;">
+              ${logoHtml}
+              <div><h1 style="margin:0; font-size:18pt; color:#111a26;">${appConfig.storeName}</h1><div style="font-size:7.5pt; color:#64748b;">${appConfig.tagline}</div></div>
+            </div>
+            <div style="background:#1a2536; color:white; font-size:8pt; padding:3px 8px; border-radius:4px;">BUKTI TRANSAKSI</div>
+          </div>
+          <table><tr><td style="width:50%; border:none;"><b>No:</b> ${o.id}<br><b>Masuk:</b> ${cleanDateStr(o.dateIn)}<br><b>Target:</b> ${cleanDateStr(o.dateDue)}</td>
+          <td style="width:50%; text-align:right; border:none;"><b>Plg:</b> ${o.customerName}<br><b>HP:</b> ${c.phone||'-'}<br><b>Alamat Toko:</b> ${appConfig.address}</td></tr></table>
+          <br><table><thead><tr><th style="width:25px;">No</th><th>Item & Bahan</th><th style="width:60px;">Point</th><th style="width:105px; text-align:right;">Biaya</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+          <table class="tot"><tr><td style="text-align:right;">Total:</td><td style="text-align:right; font-weight:bold; width:120px;">${formatRp(o.total)}</td></tr>
+          <tr><td style="text-align:right;">DP:</td><td style="text-align:right; font-weight:bold; color:green;">${formatRp(o.dp)}</td></tr>
+          <tr><td style="text-align:right; font-weight:bold; border-top:1px solid #ccc;">Sisa Tagihan:</td><td style="text-align:right; font-weight:900; border-top:1px solid #ccc; color:${o.remaining>0?'red':'green'};">${o.remaining>0?formatRp(o.remaining):'LUNAS'}</td></tr></table>
+          <div style="margin-top:20px; font-size:8pt; color:#666; text-align:center;">Terima kasih atas kepercayaannya di ${appConfig.storeName}.<br>WA: ${appConfig.phone} | ${appConfig.socialMedia}</div>
+          <script>window.onload = function() { window.print(); };<\/script>
+        </body></html>`);
+      pr.document.close();
+    }
+
+    function sendWhatsAppReceipt(orderId) {
+      const o = orders.find(x => x.id === orderId);
+      if (!o) return;
+      const c = customers.find(x => x.id === o.customerId) || {};
+      let phone = (c.phone || '').replace(/\D/g, '');
+      if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+      
+      const itemsList = (o.items || []).map(it => `• [${it.type.toUpperCase()}] ${it.material} (Pt: ${it.point}) - ${formatRp(it.price)}`).join('\n');
+      const text = `Halo Kak *${o.customerName}*,\nBerikut bukti order pengerjaan di *${appConfig.storeName}*:\n\n*No. Order:* ${o.id}\n*Target Jadi:* ${cleanDateStr(o.dateDue)}\n*Status:* ${o.status.toUpperCase()}\n\n*Rincian:*\n${itemsList}\n\n*Total:* ${formatRp(o.total)}\n*DP:* ${formatRp(o.dp)}\n*Sisa Tagihan:* ${o.remaining>0?formatRp(o.remaining):'LUNAS'}\n\nTerima kasih! 🙏`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById('orders-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      orders.forEach(o => {
+        const itemsDetail = (o.items || []).map(it => `
+          <div class="mb-0.5">
+            <span class="font-bold text-[9px] px-1 rounded ${it.type === 'repair' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${it.type.toUpperCase()}</span> ${it.material || '-'}
+          </div>
+        `).join('');
+        
+        const isSettled = o.remaining <= 0;
+        const isLate = checkIsLate(o);
+        
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100 ${isLate ? 'bg-rose-50/40' : ''}">
+            <td class="py-2.5 px-3 font-semibold">${o.id}<br><span class="text-[10px] text-slate-400 font-normal">${cleanDateStr(o.dateIn)}</span></td>
+            <td class="py-2.5 px-3 font-medium">${o.customerName}</td>
+            <td class="py-2.5 px-3 text-[10px]">${itemsDetail}</td>
+            <td class="py-2.5 px-3 text-center"><span class="bg-amber-50 text-amber-800 border px-2 py-0.5 rounded-full text-[10px] font-black">${o.totalPoints} Poin</span></td>
+            <td class="py-2.5 px-3 text-[11px]"><b>${formatRp(o.total)}</b><br><span class="text-emerald-600 text-[10px]">DP: ${formatRp(o.dp)}</span></td>
+            <td class="py-2.5 px-3 text-[11px]">
+              <span class="font-bold ${isSettled ? 'text-emerald-600' : 'text-rose-600'}">${formatRp(o.remaining)}</span>
+              ${!isSettled ? `
+                <button onclick="settleOrder('${o.id}')" title="Klik untuk Lunasi" class="block mt-1 text-[9px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-300 font-bold transition">
+                  ✓ Lunasi
+                </button>
+              ` : '<span class="block text-[9px] text-emerald-600 font-bold mt-0.5">Lunas</span>'}
+            </td>
+            <td class="py-2.5 px-3 text-[10px]"><span class="${isLate ? 'font-black text-rose-600' : 'text-slate-600'}">${cleanDateStr(o.dateDue)}</span></td>
+            <td class="py-2.5 px-3 text-center">
+              <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-[10px] border rounded px-1 py-1 font-semibold">
+                <option value="diterima" ${o.status==='diterima'?'selected':''}>Diterima</option>
+                <option value="proses" ${o.status==='proses'?'selected':''}>Proses</option>
+                <option value="selesai" ${o.status==='selesai'?'selected':''}>Selesai</option>
+              </select>
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="printOrderReceipt('${o.id}')" class="p-1 hover:bg-slate-100 rounded text-slate-700"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button>
+                <button onclick="sendWhatsAppReceipt('${o.id}')" class="p-1 hover:bg-emerald-50 rounded text-emerald-600"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></button>
+                <button onclick="openOrderModal('${o.id}')" class="p-1 hover:bg-amber-50 rounded text-amber-600"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                <button onclick="deleteOrder('${o.id}')" class="p-1 hover:bg-rose-50 rounded text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    function changeCalendarMonth(offset) {
+      calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + offset);
+      renderCalendar();
+      renderMonthlyChart();
+    }
+
+    function goToCurrentMonth() {
+      calendarCurrentDate = new Date();
+      renderCalendar();
+      renderMonthlyChart();
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      
+      const year = calendarCurrentDate.getFullYear(), month = calendarCurrentDate.getMonth();
+      const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
+      document.getElementById('calendar-header-title').innerText = `Kalender Deadline - ${calendarCurrentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+      
+      const todayStr = cleanDateStr(new Date());
+      const maxCapacity = appConfig.dailyCapacity || 20;
+
+      for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayOrders = orders.filter(o => cleanDateStr(o.dateDue) === dateStr);
+        let totalPts = 0;
+        dayOrders.forEach(o => (o.items || []).forEach(it => totalPts += (Number(it.point) || 5)));
+        const percent = Math.round((totalPts / maxCapacity) * 100);
+        
+        let bc = 'bg-emerald-600 text-white';
+        if (percent >= 100) bc = 'bg-rose-600 text-white animate-pulse';
+        else if (percent >= 70) bc = 'bg-orange-500 text-white';
+        
+        grid.innerHTML += `
+          <button onclick="showCalendarDetails('${dateStr}', ${totalPts}, ${percent})" class="min-h-[58px] p-1 border rounded-lg flex flex-col justify-between ${dateStr === todayStr ? 'bg-amber-50 border-amber-500' : 'bg-white'} ${dayOrders.length > 0 ? (percent >= 100 ? 'bg-rose-50 border-rose-300' : 'bg-amber-50/40 border-amber-200') : ''}">
+            <div class="flex justify-between w-full px-0.5"><span class="text-[11px] font-semibold">${d}</span></div>
+            ${dayOrders.length > 0 ? `
+              <div class="w-full text-center mt-0.5">
+                <span class="block text-[9px] font-bold">${dayOrders.length} Ord</span>
+                <span class="inline-block text-[9px] px-1.5 rounded-full ${bc}">${percent}%</span>
+              </div>
+            ` : ''}
+          </button>
+        `;
+      }
+    }
+
+    function showCalendarDetails(dateStr, pts, percent) {
+      const el = document.getElementById('calendar-selected-details');
+      if (!el) return;
+      el.classList.remove('hidden');
+      const f = orders.filter(o => cleanDateStr(o.dateDue) === dateStr);
+      if (!f.length) { el.innerHTML = `Tidak ada pesanan deadline pada ${dateStr}`; return; }
+      el.innerHTML = `<div class="mb-2 font-bold text-slate-800">Deadline: ${dateStr} | Terisi: ${pts}/${appConfig.dailyCapacity} Poin (${percent}%)</div>` + 
+        f.map(o => `<span class="inline-block bg-slate-50 border rounded px-2.5 py-1.5 mr-1.5 mb-1.5 text-[11px]"><b>${o.customerName}</b> - ${o.totalPoints} Pt</span>`).join('');
+    }
+
+    function renderMonthlyChart() {
+      const year = calendarCurrentDate.getFullYear(), month = calendarCurrentDate.getMonth();
+      const oFiltered = orders.filter(o => {
+        const d = cleanDateStr(o.dateDue), i = cleanDateStr(o.dateIn);
+        const cm = (str) => { if (!str) return false; const [y, m] = str.split('-'); return Number(y) === year && Number(m) === (month + 1); };
+        return cm(d) || cm(i);
+      });
+
+      let cCust = 0, cRep = 0;
+      oFiltered.forEach(o => {
+        (o.items || []).forEach(it => {
+          if ((it.type || '').toLowerCase() === 'repair') cRep++; else cCust++;
+        });
+      });
+
+      const tot = cCust + cRep, container = document.getElementById('chart-container');
+      if (!container) return;
+      if (!tot) { container.innerHTML = `<div class="text-center text-slate-400 py-4 w-full">Belum ada item pesanan pada periode ini.</div>`; return; }
+
+      const pCust = Math.round((cCust / tot) * 100), pRep = 100 - pCust;
+      container.innerHTML = `
+        <div class="relative w-40 h-40 flex items-center justify-center">
+          <svg viewBox="0 0 42 42" class="w-full h-full -rotate-90">
+            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#f1f5f9" stroke-width="5"></circle>
+            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#3b82f6" stroke-width="5" stroke-dasharray="${pRep} ${100-pRep}" stroke-dashoffset="0"></circle>
+            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#d97736" stroke-width="5" stroke-dasharray="${pCust} ${100-pCust}" stroke-dashoffset="-${pRep}"></circle>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span class="text-xl font-black">${tot}</span><span class="text-[9px] font-bold text-slate-400">Total Item</span>
+          </div>
+        </div>
+        <div class="flex-1 space-y-3 w-full max-w-sm">
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex justify-between">
+            <div><h4 class="font-bold text-xs">Custom Garment</h4><p class="text-[10px] text-slate-500">Pakaian baru</p></div>
+            <div class="text-right"><span class="text-sm font-black">${cCust}</span><span class="text-[10px] text-amber-800 ml-1">(${pCust}%)</span></div>
+          </div>
+          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl flex justify-between">
+            <div><h4 class="font-bold text-xs">Reparasi / Vermak</h4><p class="text-[10px] text-slate-500">Hemming, permak</p></div>
+            <div class="text-right"><span class="text-sm font-black">${cRep}</span><span class="text-[10px] text-blue-700 ml-1">(${pRep}%)</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSchedule() { renderCalendar(); renderMonthlyChart(); }
+
+    function openCashModal() {
+      document.getElementById('form-cash').reset();
+      document.getElementById('cash-date').value = new Date().toISOString().split('T')[0];
+      openModal('modal-cash');
+    }
+
+    function saveCashflow(e) {
+      e.preventDefault();
+      cashflow.unshift({
+        id: Date.now(),
+        date: cleanDateStr(document.getElementById('cash-date').value),
+        type: document.getElementById('cash-type').value,
+        desc: document.getElementById('cash-desc').value,
+        amount: Number(document.getElementById('cash-amount').value)
+      });
+      saveData();
+      closeModal('modal-cash');
+    }
+
+    function deleteCash(id) {
+      if (confirm("Hapus catatan kas ini?")) {
+        cashflow = cashflow.filter(c => c.id !== id);
+        saveData();
+      }
+    }
+
+    function renderCashflow() {
+      let tIn = 0, tOut = 0;
+      const tbody = document.getElementById('cashflow-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      cashflow.forEach(c => {
+        const amt = Number(c.amount) || 0;
+        if (c.type === 'in') tIn += amt; else tOut += amt;
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100">
+            <td class="py-2.5 px-3 text-[10px]">${cleanDateStr(c.date)}</td>
+            <td class="py-2.5 px-3 font-medium">${c.desc}</td>
+            <td class="py-2.5 px-3">
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${c.type==='in'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">
+                ${c.type==='in'?'Masuk':'Keluar'}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-right font-bold text-[11px] ${c.type==='in'?'text-emerald-600':'text-rose-600'}">
+              ${c.type==='in'?'+':'-'} ${formatRp(amt)}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              <button onclick="deleteCash(${c.id})" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      const elIn = document.getElementById('cash-in-total'); if (elIn) elIn.innerText = formatRp(tIn);
+      const elOut = document.getElementById('cash-out-total'); if (elOut) elOut.innerText = formatRp(tOut);
+      const elBal = document.getElementById('cash-balance-total'); if (elBal) elBal.innerText = formatRp(tIn - tOut);
+      lucide.createIcons();
+    }
+
+    function renderDashboardDailyReport() {
+      const todayStr = cleanDateStr(new Date());
+      let todayIn = 0, todayOut = 0;
+
+      cashflow.forEach(c => {
+        if (cleanDateStr(c.date) === todayStr) {
+          if (c.type === 'in') todayIn += Number(c.amount) || 0;
+          if (c.type === 'out') todayOut += Number(c.amount) || 0;
+        }
+      });
+
+      const todayBalance = todayIn - todayOut;
+
+      const elIn = document.getElementById('dash-today-in');
+      const elOut = document.getElementById('dash-today-out');
+      const elBal = document.getElementById('dash-today-balance');
+
+      if (elIn) elIn.innerText = formatRp(todayIn);
+      if (elOut) elOut.innerText = formatRp(todayOut);
+      if (elBal) {
+        elBal.innerText = formatRp(todayBalance);
+        elBal.className = `text-base sm:text-xl font-black mt-0.5 truncate ${
+          todayBalance >= 0 ? 'text-emerald-700' : 'text-rose-600'
+        }`;
+      }
+    }
+
+    function changeDashboardMonth(offset) {
+      dashChartDate.setMonth(dashChartDate.getMonth() + offset);
+      renderDashboardChart();
+    }
+
+    function renderDashboardChart() {
+      const year = dashChartDate.getFullYear();
+      const month = dashChartDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      const ml = document.getElementById('dash-chart-month');
+      if (ml) ml.innerText = dashChartDate.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+
+      let dailyOmset = new Array(daysInMonth).fill(0);
+      let totalBulanIni = 0;
+
+      cashflow.forEach(c => {
+        if (c.type === 'in') {
+          const ds = cleanDateStr(c.date);
+          if (!ds) return;
+          const [y, m, d] = ds.split('-').map(Number);
+          if (y === year && (m - 1) === month) {
+            const amt = Number(c.amount) || 0;
+            dailyOmset[d - 1] += amt;
+            totalBulanIni += amt;
+          }
+        }
+      });
+
+      const tEl = document.getElementById('dash-month-total');
+      if (tEl) tEl.innerText = formatRp(totalBulanIni);
+
+      const container = document.getElementById('dash-chart-bars');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const maxVal = Math.max(...dailyOmset, 1);
+
+      for (let i = 0; i < daysInMonth; i++) {
+        const val = dailyOmset[i];
+        const percent = Math.floor((val / maxVal) * 100);
+        const isToday = (year === new Date().getFullYear() && month === new Date().getMonth() && (i + 1) === new Date().getDate());
+
+        let posClass = "left-1/2 -translate-x-1/2";
+        if (i < 3) posClass = "left-0";
+        else if (i > daysInMonth - 4) posClass = "right-0";
+
+        container.innerHTML += `
+          <div class="flex-1 flex flex-col justify-end group min-w-[10px] sm:min-w-[14px] relative cursor-pointer h-full">
+            <div class="opacity-0 group-hover:opacity-100 absolute top-1 ${posClass} bg-slate-800 text-white text-[9px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20 pointer-events-none transition-opacity">
+              Tgl ${i + 1}: ${formatRp(val)}
+            </div>
+            <div class="w-full ${isToday ? 'bg-copper' : (val > 0 ? 'bg-blue-400 group-hover:bg-blue-600' : 'bg-slate-100')} rounded-t-sm transition-all" style="height: ${percent === 0 ? '2' : percent}%;"></div>
+            <div class="text-[8px] text-center mt-1 font-semibold ${isToday ? 'text-copper font-black' : 'text-slate-400'}">${i + 1}</div>
+          </div>
+        `;
+      }
+    }
+
+    function changeDashboardYear(offset) {
+      dashYearDate.setFullYear(dashYearDate.getFullYear() + offset);
+      renderDashboardYearChart();
+    }
+
+    function renderDashboardYearChart() {
+      const year = dashYearDate.getFullYear();
+      const yLabel = document.getElementById('dash-chart-year');
+      if (yLabel) yLabel.innerText = year;
+
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const monthsFull = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      
+      let omsetArr = new Array(12).fill(0);
+      let customArr = new Array(12).fill(0);
+      let repairArr = new Array(12).fill(0);
+
+      function extractYearMonth(d) {
+        if (!d) return null;
+        const clean = cleanDateStr(d);
+        if (!clean || clean.length < 7) return null;
+        const parts = clean.split('-');
+        if (parts.length >= 2) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          if (!isNaN(y) && !isNaN(m) && m >= 0 && m <= 11) {
+            return { y, m };
+          }
+        }
+        return null;
+      }
+
+      cashflow.forEach(c => {
+        if (c.type === 'in') {
+          const ym = extractYearMonth(c.date);
+          if (ym && ym.y === year) {
+            omsetArr[ym.m] += Number(c.amount) || 0;
+          }
+        }
+      });
+
+      orders.forEach(o => {
+        const ym = extractYearMonth(o.dateIn || o.dateDue);
+        if (ym && ym.y === year) {
+          const items = Array.isArray(o.items) && o.items.length > 0 ? o.items : [{ type: 'custom', material: 'Default' }];
+          items.forEach(it => {
+            const t = String(it.type || '').toLowerCase();
+            const desc = String(it.desc || '').toLowerCase();
+            const mat = String(it.material || '').toLowerCase();
+
+            if (t === 'repair' || desc.includes('repair') || desc.includes('vermak') || mat.includes('repair') || mat.includes('vermak')) {
+              repairArr[ym.m]++;
+            } else {
+              customArr[ym.m]++;
+            }
+          });
+        }
+      });
+
+      const totOmsetYear = omsetArr.reduce((a, b) => a + b, 0);
+      const totCustomYear = customArr.reduce((a, b) => a + b, 0);
+      const totRepairYear = repairArr.reduce((a, b) => a + b, 0);
+
+      const elTotOmset = document.getElementById('dash-year-total-omset');
+      const elTotCustom = document.getElementById('dash-year-total-custom');
+      const elTotRepair = document.getElementById('dash-year-total-repair');
+
+      if (elTotOmset) elTotOmset.innerText = formatRp(totOmsetYear);
+      if (elTotCustom) elTotCustom.innerText = `${totCustomYear} Pcs`;
+      if (elTotRepair) elTotRepair.innerText = `${totRepairYear} Pcs`;
+
+      const maxOmset = Math.max(...omsetArr, 1);
+      const maxQty = Math.max(...customArr, ...repairArr, 1);
+
+      const container = document.getElementById('dash-year-bars');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let m = 0; m < 12; m++) {
+        const omsetVal = omsetArr[m];
+        const customVal = customArr[m];
+        const repairVal = repairArr[m];
+        const totalPcs = customVal + repairVal;
+
+        const hOmset = omsetVal > 0 ? Math.max(4, Math.floor((omsetVal / maxOmset) * 100)) : 0;
+        const hCustom = customVal > 0 ? Math.max(4, Math.floor((customVal / maxQty) * 100)) : 0;
+        const hRepair = repairVal > 0 ? Math.max(4, Math.floor((repairVal / maxQty) * 100)) : 0;
+
+        let posClass = "left-1/2 -translate-x-1/2";
+        if (m <= 1) posClass = "left-0";
+        else if (m >= 10) posClass = "right-0";
+
+        container.innerHTML += `
+          <div class="flex-1 flex flex-col items-center h-full group min-w-[24px] sm:min-w-[32px] relative cursor-pointer">
+            <div class="opacity-0 group-hover:opacity-100 absolute top-0 ${posClass} bg-slate-900/95 backdrop-blur-sm text-white text-[9.5px] p-2.5 rounded-xl shadow-2xl min-w-[155px] max-w-[200px] z-30 pointer-events-none transition-all duration-150 border border-slate-700">
+              <div class="font-bold border-b border-slate-700/80 pb-1 mb-1.5 flex justify-between items-center text-amber-400">
+                <span>${monthsFull[m]} ${year}</span>
+                <span class="text-[8px] text-slate-400 font-normal">${totalPcs} Pcs</span>
+              </div>
+              <div class="space-y-1">
+                <div class="flex justify-between items-center text-slate-300">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>Omset:</span>
+                  <b class="text-emerald-400 font-bold">${formatRp(omsetVal)}</b>
+                </div>
+                <div class="flex justify-between items-center text-slate-300">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>Custom:</span>
+                  <b class="text-amber-400 font-bold">${customVal} pcs</b>
+                </div>
+                <div class="flex justify-between items-center text-slate-300">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>Reparasi:</span>
+                  <b class="text-blue-400 font-bold">${repairVal} pcs</b>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-end justify-center gap-0.5 sm:gap-1 w-full h-full pb-1">
+              <div class="w-1.5 sm:w-2 bg-emerald-500 rounded-t-sm transition-all" style="height: ${hOmset}%;" title="Omset"></div>
+              <div class="w-1.5 sm:w-2 bg-amber-500 rounded-t-sm transition-all" style="height: ${hCustom}%;" title="Custom"></div>
+              <div class="w-1.5 sm:w-2 bg-blue-500 rounded-t-sm transition-all" style="height: ${hRepair}%;" title="Reparasi"></div>
+            </div>
+
+            <span class="text-[9px] font-bold text-slate-500 mt-1">${months[m]}</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderDashboard() {
+      const fullDate = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const dDate = document.getElementById('desktop-date');
+      if (dDate) dDate.innerText = fullDate;
+
+      const activeOrders = orders.filter(o => o.status === 'diterima' || o.status === 'proses');
+      const statActive = document.getElementById('stat-active-orders');
+      if (statActive) statActive.innerText = activeOrders.length;
+
+      const todayStr = cleanDateStr(new Date());
+      const maxCapacity = appConfig.dailyCapacity || 20;
+      const todayDueOrders = orders.filter(o => cleanDateStr(o.dateDue) === todayStr);
+      let todayPoints = 0;
+      todayDueOrders.forEach(o => {
+        (o.items || []).forEach(it => todayPoints += (Number(it.point) || 5));
+      });
+      const workloadPct = Math.round((todayPoints / maxCapacity) * 100);
+      const statWkld = document.getElementById('stat-today-workload');
+      if (statWkld) statWkld.innerText = `${todayPoints} Pt (${workloadPct}%)`;
+      const statCap = document.getElementById('stat-capacity-target');
+      if (statCap) statCap.innerText = `Kapasitas: ${maxCapacity} Pt / Hari`;
+
+      const lateOrders = orders.filter(o => checkIsLate(o));
+      const elLateCount = document.getElementById('stat-late-orders');
+      const elLateBg = document.getElementById('stat-late-icon-bg');
+      const elLateLbl = document.getElementById('stat-late-label');
+
+      if (elLateCount) elLateCount.innerText = lateOrders.length;
+      if (lateOrders.length > 0) {
+        if (elLateCount) elLateCount.className = "text-xl sm:text-2xl font-black text-rose-600 animate-pulse";
+        if (elLateBg) elLateBg.className = "p-2 bg-rose-50 text-rose-600 rounded-lg";
+        if (elLateLbl) {
+          elLateLbl.innerText = `${lateOrders.length} Butuh Penanganan`;
+          elLateLbl.className = "text-[10px] text-rose-600 font-bold mt-1";
+        }
+      } else {
+        if (elLateCount) elLateCount.className = "text-xl sm:text-2xl font-black text-emerald-600";
+        if (elLateBg) elLateBg.className = "p-2 bg-emerald-50 text-emerald-600 rounded-lg";
+        if (elLateLbl) {
+          elLateLbl.innerText = "Semua Tepat Waktu";
+          elLateLbl.className = "text-[10px] text-emerald-600 font-medium mt-1";
+        }
+      }
+
+      const statCust = document.getElementById('stat-total-customers');
+      if (statCust) statCust.innerText = customers.length;
+
+      renderDashboardDailyReport();
+      renderDashboardChart();
+      renderDashboardYearChart();
+
+      const tbody = document.getElementById('dashboard-urgent-list');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      const sorted = [...activeOrders].sort((a, b) => new Date(cleanDateStr(a.dateDue)) - new Date(cleanDateStr(b.dateDue))).slice(0, 5);
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada pesanan antrean.</td></tr>`;
+      } else {
+        sorted.forEach(o => {
+          const isLate = checkIsLate(o);
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 ${isLate ? 'bg-rose-50/40' : ''}">
+              <td class="py-2.5 px-3 font-bold ${isLate ? 'text-rose-600' : 'text-amber-700'} whitespace-nowrap">
+                ${cleanDateStr(o.dateDue)}
+                ${isLate ? '<span class="ml-1 bg-rose-600 text-white text-[8px] px-1 rounded animate-pulse">Terlambat</span>' : ''}
+              </td>
+              <td class="py-2.5 px-3 font-medium whitespace-nowrap">${o.customerName}</td>
+              <td class="py-2.5 px-3 text-slate-500 truncate max-w-[150px]">${(o.items || []).map(i => i.material || i.desc).join(', ')}</td>
+              <td class="py-2.5 px-3"><span class="capitalize text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800">${o.status}</span></td>
+              <td class="py-2.5 px-3 font-bold text-rose-600 text-right whitespace-nowrap">${formatRp(o.remaining)}</td>
+            </tr>
+          `;
+        });
+      }
+      lucide.createIcons();
+    }
+
+    function refreshAll() {
+      renderDashboard();
+      renderCustomers();
+      renderOrders();
+      renderSchedule();
+      renderCashflow();
+    }
+
+    // Registrasi PWA Service Worker otomatis
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW register note:', err));
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfigUI();
+      switchTab('dashboard');
+      syncDataFromCloud();
+    });
+  </script>
+</body>
+</html>
