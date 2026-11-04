@@ -25,7 +25,7 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col md:flex-row pb-20 md:pb-0">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col md:flex-row pb-20 md:pb-0 relative">
 
   <!-- TOP BAR HP -->
   <header class="md:hidden bg-denim-dark text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-30">
@@ -94,6 +94,27 @@
       <i data-lucide="settings" class="w-5 h-5"></i> Setting
     </button>
   </nav>
+
+  <!-- FLOATING ACTION BUTTONS (DINAMIS MENGIKUTI SCROLL LAYAR) -->
+  <div class="fixed right-5 bottom-20 md:bottom-8 z-40 flex flex-col gap-3">
+    <!-- FAB Tambah Pelanggan (Hanya di Tab Pelanggan) -->
+    <button id="fab-pelanggan" onclick="openCustomerModal()" class="hidden bg-copper hover:bg-amber-600 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
+      <i data-lucide="user-plus" class="w-5 h-5"></i>
+      <span class="text-xs font-bold pr-1 hidden sm:inline-block">Tambah Pelanggan</span>
+    </button>
+
+    <!-- FAB Buat Order (Hanya di Tab Transaksi/Order) -->
+    <button id="fab-transaksi" onclick="openOrderModal()" class="hidden bg-copper hover:bg-amber-600 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
+      <i data-lucide="plus-circle" class="w-5 h-5"></i>
+      <span class="text-xs font-bold pr-1 hidden sm:inline-block">Buat Order</span>
+    </button>
+
+    <!-- FAB Catat Kas (Hanya di Tab Kasir) -->
+    <button id="fab-kasir" onclick="openCashModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
+      <i data-lucide="plus-circle" class="w-5 h-5"></i>
+      <span class="text-xs font-bold pr-1 hidden sm:inline-block">Catat Kas</span>
+    </button>
+  </div>
 
   <!-- MAIN VIEWPORT -->
   <main class="flex-1 w-full max-w-full p-4 sm:p-6 md:p-8 overflow-x-hidden overflow-y-auto">
@@ -194,9 +215,7 @@
             </button>
           </div>
         </div>
-        
         <div class="flex items-end gap-1 sm:gap-1.5 h-52 w-full overflow-x-auto no-scrollbar pt-12 relative border-b border-slate-100 pb-1" id="dash-chart-bars"></div>
-        
         <div class="mt-3 flex justify-between items-center text-xs">
           <span class="text-slate-400">Total Omset Bulan Ini:</span>
           <span class="text-base sm:text-lg font-black text-slate-900" id="dash-month-total">Rp 0</span>
@@ -223,7 +242,6 @@
           </div>
         </div>
 
-        <!-- Legend / Petunjuk Warna -->
         <div class="flex flex-wrap items-center gap-4 text-[11px] mb-3 pb-2 border-b border-slate-100">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-sm bg-emerald-500"></span>
@@ -239,10 +257,8 @@
           </div>
         </div>
 
-        <!-- Container 12 Bulan -->
         <div class="flex items-end justify-between gap-1 sm:gap-2 h-60 w-full overflow-x-auto no-scrollbar pt-14 relative border-b border-slate-100 pb-1" id="dash-year-bars"></div>
 
-        <!-- Rangkuman Total Tahunan -->
         <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs pt-2">
           <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-100">
             <span class="block text-[10px] text-emerald-600 font-bold uppercase">Total Omset</span>
@@ -514,7 +530,83 @@
 
   </main>
 
-  <!-- MODAL PELANGGAN -->
+  <!-- MODAL KARTU PELANGGAN & DETAIL ORDERAN -->
+  <div id="modal-customer-card" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
+    <div class="bg-white w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] flex flex-col">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Profil & Riwayat Pelanggan</span>
+          <h3 class="text-xl font-black text-slate-900" id="card-cust-name">-</h3>
+          <p class="text-xs text-slate-500 font-medium flex items-center gap-1.5 mt-0.5" id="card-cust-phone-wrapper">
+            <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span id="card-cust-phone">-</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="card-btn-wa" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-2 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">WhatsApp</span>
+          </button>
+          <button id="card-btn-new-order" class="bg-copper hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Order Baru</span>
+          </button>
+          <button onclick="closeModal('modal-customer-card')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+        <!-- Rangkuman Singkat -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Total Order</span>
+            <span class="text-sm sm:text-base font-black text-slate-800" id="card-total-order">0</span>
+          </div>
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Order Aktif</span>
+            <span class="text-sm sm:text-base font-black text-amber-600" id="card-active-order">0</span>
+          </div>
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Total Belanja</span>
+            <span class="text-xs sm:text-sm font-black text-emerald-700" id="card-total-spent">Rp 0</span>
+          </div>
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-[10px] text-slate-400 font-bold uppercase">Sisa Tagihan</span>
+            <span class="text-xs sm:text-sm font-black text-rose-600" id="card-total-remaining">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Tabel Ukuran Pelanggan -->
+        <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+              <i data-lucide="ruler" class="w-3.5 h-3.5 text-copper"></i> Data Ukuran Tubuh
+            </h4>
+            <button id="card-btn-edit-size" class="text-[10px] text-amber-700 font-bold hover:underline">Edit Ukuran</button>
+          </div>
+          <div id="card-size-summary" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700"></div>
+        </div>
+
+        <!-- Daftar Riwayat Orderan -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+            <i data-lucide="package" class="w-4 h-4 text-copper"></i> Riwayat Semua Pesanan
+          </h4>
+          <div id="card-orders-container" class="space-y-2.5"></div>
+        </div>
+      </div>
+      
+      <div class="pt-3 border-t border-slate-200 flex justify-end">
+        <button onclick="closeModal('modal-customer-card')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">
+          Tutup Kartu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PELANGGAN (FORM INPUT) -->
   <div id="modal-customer" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
     <div class="bg-white w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
       <h3 class="text-base font-bold text-slate-900 mb-2" id="customer-modal-title">Tambah Pelanggan Baru</h3>
@@ -608,7 +700,7 @@
     </div>
   </div>
 
-  <!-- MODAL ORDER -->
+  <!-- MODAL ORDER (FORM INPUT) -->
   <div id="modal-order" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
     <div class="bg-white w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
       <h3 class="text-base font-bold text-slate-900 mb-3" id="order-modal-title">Buat Order Transaksi Baru</h3>
@@ -714,7 +806,7 @@
   </div>
 
   <script>
-    // State Konfigurasi Toko (Tersimpan dinamis di LocalStorage masing-masing pengguna)
+    // State Konfigurasi Toko
     let appConfig = JSON.parse(localStorage.getItem('brkh_config')) || {
       storeName: "BRKH DENIM",
       tagline: "RAW, AUTHENTIC, DURABLE",
@@ -722,13 +814,12 @@
       phone: "085648492858",
       socialMedia: "@brkhdenim",
       dailyCapacity: 20,
-      scriptUrl: "", // URL Google Apps Script fleksibel per pengguna
+      scriptUrl: "",
       logo: ""
     };
     
     let currentLogoBase64 = appConfig.logo || "";
 
-    // Ambil Script URL aktif
     function getActiveScriptUrl() {
       return (appConfig.scriptUrl || "").trim();
     }
@@ -742,7 +833,6 @@
     let sizeSkirts = JSON.parse(localStorage.getItem('brkh_size_skirts')) || [];
     let sizeOthers = JSON.parse(localStorage.getItem('brkh_size_others')) || [];
 
-    // State Navigasi Tanggal & Chart
     let calendarCurrentDate = new Date();
     let dashChartDate = new Date();
     let dashYearDate = new Date();
@@ -801,7 +891,6 @@
       }
     }
 
-    // SINKRONISASI CLOUD DARI URL AKTIF PENGGUNA
     async function syncDataFromCloud() {
       const scriptUrl = getActiveScriptUrl();
       if (!scriptUrl) { 
@@ -824,7 +913,7 @@
         if (data.appConfig) {
           const preservedUrl = appConfig.scriptUrl;
           appConfig = data.appConfig;
-          appConfig.scriptUrl = preservedUrl; // Jangan timpa URL lokal
+          appConfig.scriptUrl = preservedUrl;
         }
         
         saveLocalData();
@@ -905,6 +994,15 @@
       const mobBtn = document.getElementById('nav-m-' + tab);
       if (mobBtn) mobBtn.classList.add('text-amber-500', 'font-bold');
       
+      // Update FAB mengambang dinamis
+      document.getElementById('fab-pelanggan').classList.add('hidden');
+      document.getElementById('fab-transaksi').classList.add('hidden');
+      document.getElementById('fab-kasir').classList.add('hidden');
+
+      if (tab === 'pelanggan') document.getElementById('fab-pelanggan').classList.remove('hidden');
+      if (tab === 'transaksi') document.getElementById('fab-transaksi').classList.remove('hidden');
+      if (tab === 'kasir') document.getElementById('fab-kasir').classList.remove('hidden');
+
       refreshAll();
     }
 
@@ -925,6 +1023,159 @@
 
     function openModal(id) { const el = document.getElementById(id); el.classList.remove('hidden'); el.classList.add('flex'); }
     function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); }
+
+    // ==========================================
+    // KARTU PELANGGAN & DETAIL ORDER LENGKAP
+    // ==========================================
+    function openCustomerCard(customerId) {
+      const cust = customers.find(c => c.id === customerId);
+      if (!cust) return;
+
+      document.getElementById('card-cust-name').innerText = cust.name;
+      document.getElementById('card-cust-phone').innerText = cust.phone || '-';
+
+      // Setup Tombol Chat WhatsApp
+      const btnWa = document.getElementById('card-btn-wa');
+      let cleanPhone = (cust.phone || '').replace(/\D/g, '');
+      if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
+      btnWa.onclick = () => window.open(`https://wa.me/${cleanPhone}`, '_blank');
+
+      // Setup Tombol Tambah Order Cepat
+      const btnNewOrder = document.getElementById('card-btn-new-order');
+      btnNewOrder.onclick = () => {
+        closeModal('modal-customer-card');
+        openOrderModal(null, cust.id);
+      };
+
+      // Setup Tombol Edit Ukuran
+      const btnEditSize = document.getElementById('card-btn-edit-size');
+      btnEditSize.onclick = () => {
+        closeModal('modal-customer-card');
+        openCustomerModal(cust.id);
+      };
+
+      // Tampilkan Ringkasan Ukuran
+      const p = sizePants.find(x => x.customerId === cust.id) || {};
+      const s = sizeShirts.find(x => x.customerId === cust.id) || {};
+      const sk = sizeSkirts.find(x => x.customerId === cust.id) || {};
+      const o = sizeOthers.find(x => x.customerId === cust.id) || {};
+
+      const sizeContainer = document.getElementById('card-size-summary');
+      sizeContainer.innerHTML = '';
+
+      let hasPants = p.waist || p.length;
+      let hasShirt = s.lingkarDada || s.panjangBaju;
+      let hasSkirt = sk.lingkarPinggang || sk.panjangRok;
+      let hasOthers = o.namaBarang || o.dimensi;
+
+      if (hasPants) {
+        sizeContainer.innerHTML += `
+          <div class="bg-white p-2 rounded-lg border border-amber-200">
+            <span class="font-bold text-amber-800 block mb-0.5">👖 Celana:</span>
+            <span>W:${p.waist||'-'} | FR:${p.frontRise||'-'} | BR:${p.backRise||'-'} | Hip:${p.hip||'-'} | Thigh:${p.thigh||'-'} | Knee:${p.knee||'-'} | Inseam:${p.inseam||'-'} | L:${p.length||'-'}</span>
+            ${p.notes ? `<div class="text-[10px] text-slate-500 italic mt-0.5">Pola: ${p.notes}</div>` : ''}
+          </div>
+        `;
+      }
+      if (hasShirt) {
+        sizeContainer.innerHTML += `
+          <div class="bg-white p-2 rounded-lg border border-amber-200">
+            <span class="font-bold text-amber-800 block mb-0.5">👔 Baju:</span>
+            <span>Dada:${s.lingkarDada||'-'} | Bahu:${s.lebarBahu||'-'} | Pjg:${s.panjangBaju||'-'} | Lengan:${s.panjangLengan||'-'} | Perut:${s.lingkarPerut||'-'}</span>
+            ${s.catatan ? `<div class="text-[10px] text-slate-500 italic mt-0.5">Pola: ${s.catatan}</div>` : ''}
+          </div>
+        `;
+      }
+      if (hasSkirt) {
+        sizeContainer.innerHTML += `
+          <div class="bg-white p-2 rounded-lg border border-amber-200">
+            <span class="font-bold text-amber-800 block mb-0.5">👗 Rok:</span>
+            <span>Pinggang:${sk.lingkarPinggang||'-'} | Pinggul:${sk.lingkarPinggul||'-'} | Pjg:${sk.panjangRok||'-'} | Lebar:${sk.lebarBawah||'-'}</span>
+            ${sk.catatan ? `<div class="text-[10px] text-slate-500 italic mt-0.5">Pola: ${sk.catatan}</div>` : ''}
+          </div>
+        `;
+      }
+      if (hasOthers) {
+        sizeContainer.innerHTML += `
+          <div class="bg-white p-2 rounded-lg border border-amber-200">
+            <span class="font-bold text-amber-800 block mb-0.5">✂️ Lain-lain:</span>
+            <span>Item: ${o.namaBarang||'-'} | Dimensi: ${o.dimensi||'-'}</span>
+            ${o.catatan ? `<div class="text-[10px] text-slate-500 italic mt-0.5">${o.catatan}</div>` : ''}
+          </div>
+        `;
+      }
+
+      if (!hasPants && !hasShirt && !hasSkirt && !hasOthers) {
+        sizeContainer.innerHTML = `<span class="text-slate-400 italic text-[11px] col-span-2">Belum ada rincian data ukuran. Klik "Edit Ukuran" untuk melengkapi.</span>`;
+      }
+
+      // Hitung dan Tampilkan Seluruh Riwayat Order
+      const custOrders = orders.filter(ord => ord.customerId === cust.id);
+      let totalSpent = 0, totalRem = 0, activeCount = 0;
+
+      custOrders.forEach(ord => {
+        totalSpent += Number(ord.total) || 0;
+        totalRem += Number(ord.remaining) || 0;
+        if (ord.status === 'diterima' || ord.status === 'proses') activeCount++;
+      });
+
+      document.getElementById('card-total-order').innerText = `${custOrders.length} Order`;
+      document.getElementById('card-active-order').innerText = `${activeCount} Order`;
+      document.getElementById('card-total-spent').innerText = formatRp(totalSpent);
+      document.getElementById('card-total-remaining').innerText = formatRp(totalRem);
+
+      const ordersContainer = document.getElementById('card-orders-container');
+      ordersContainer.innerHTML = '';
+
+      if (custOrders.length === 0) {
+        ordersContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs bg-slate-50 border rounded-xl">Belum ada riwayat pesanan untuk pelanggan ini.</div>`;
+      } else {
+        custOrders.slice().reverse().forEach(ord => {
+          const isLate = checkIsLate(ord);
+          const isSettled = ord.remaining <= 0;
+          const itemsDetail = (ord.items || []).map(it => `
+            <div class="text-[11px] flex justify-between py-0.5 border-b border-slate-100 last:border-none">
+              <span><b>[${(it.type||'custom').toUpperCase()}]</b> ${it.material || '-'} ${it.desc ? `<small class="text-slate-400">(${it.desc})</small>` : ''}</span>
+              <span class="font-semibold">${formatRp(it.price)}</span>
+            </div>
+          `).join('');
+
+          let statusBadgeClass = "bg-amber-100 text-amber-800";
+          if (ord.status === 'selesai') statusBadgeClass = "bg-emerald-100 text-emerald-800";
+          if (isLate) statusBadgeClass = "bg-rose-100 text-rose-800 font-bold animate-pulse";
+
+          ordersContainer.innerHTML += `
+            <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm text-xs hover:border-slate-300 transition">
+              <div class="flex justify-between items-center pb-1.5 mb-1.5 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-slate-800">${ord.id}</span>
+                  <span class="text-[10px] text-slate-400">${cleanDateStr(ord.dateIn)} → Target: <b class="${isLate?'text-rose-600':''}">${cleanDateStr(ord.dateDue)}</b></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] uppercase px-2 py-0.5 rounded-full ${statusBadgeClass}">${isLate ? 'TERLAMBAT' : ord.status}</span>
+                </div>
+              </div>
+              <div class="space-y-1 my-1 bg-slate-50/70 p-2 rounded-lg">${itemsDetail}</div>
+              <div class="flex justify-between items-center pt-1.5 text-[11px]">
+                <div>
+                  <span class="text-slate-400">Total:</span> <b>${formatRp(ord.total)}</b> 
+                  <span class="text-slate-400 ml-1.5">DP:</span> <span class="text-emerald-600 font-semibold">${formatRp(ord.dp)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400">Sisa:</span>
+                  <span class="font-bold ${isSettled ? 'text-emerald-600' : 'text-rose-600'}">${isSettled ? 'LUNAS' : formatRp(ord.remaining)}</span>
+                  <button onclick="closeModal('modal-customer-card'); openOrderModal('${ord.id}')" class="text-amber-600 hover:bg-amber-50 p-1 rounded" title="Edit Order"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="printOrderReceipt('${ord.id}')" class="text-slate-500 hover:bg-slate-100 p-1 rounded" title="Cetak Struk"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      openModal('modal-customer-card');
+      lucide.createIcons();
+    }
 
     function loadConfigUI() {
       document.querySelectorAll('.app-title-display').forEach(el => el.innerText = appConfig.storeName || "BRKH DENIM");
@@ -954,7 +1205,6 @@
 
     function saveConfig(e) {
       e.preventDefault();
-      const oldUrl = appConfig.scriptUrl;
       const newUrl = (document.getElementById('conf-script-url')?.value || "").trim();
 
       appConfig = {
@@ -1035,7 +1285,7 @@
           if (existingClean.startsWith('62')) existingClean = '0' + existingClean.slice(2);
           return existingClean === cleanPhone;
         });
-        alert(`Nomor WhatsApp/HP ${phone} sudah terdaftar atas nama "${existingCust ? existingCust.name : 'Pelanggan Lain'}"!\nSilakan gunakan nomor lain atau edit data pelanggan yang sudah ada.`);
+        alert(`Nomor WhatsApp/HP ${phone} sudah terdaftar atas nama "${existingCust ? existingCust.name : 'Pelanggan Lain'}"!\nSilakan gunakan nomor lain.`);
         document.getElementById('cust-phone').focus();
         return;
       }
@@ -1102,7 +1352,6 @@
       closeModal('modal-customer');
     }
 
-    // BUAT ORDER CEPAT DARI DATA PELANGGAN
     function createOrderForCustomer(customerId) {
       openOrderModal(null, customerId);
     }
@@ -1122,7 +1371,12 @@
         
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="py-2.5 px-3"><span class="font-bold">${c.name}</span><br><span class="text-[10px] text-slate-500">${c.phone}</span></td>
+            <td class="py-2.5 px-3">
+              <button onclick="openCustomerCard('${c.id}')" class="font-bold text-slate-800 hover:text-copper hover:underline text-left">
+                ${c.name}
+              </button><br>
+              <span class="text-[10px] text-slate-500">${c.phone}</span>
+            </td>
             <td class="py-2.5 px-3 text-[10px] text-slate-600">
               <details class="cursor-pointer"><summary class="font-semibold text-amber-700 hover:underline">Rincian Ukuran</summary>
                 <div class="mt-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1 text-[11px]">
@@ -1443,7 +1697,11 @@
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 border-b border-slate-100 ${isLate ? 'bg-rose-50/40' : ''}">
             <td class="py-2.5 px-3 font-semibold">${o.id}<br><span class="text-[10px] text-slate-400 font-normal">${cleanDateStr(o.dateIn)}</span></td>
-            <td class="py-2.5 px-3 font-medium">${o.customerName}</td>
+            <td class="py-2.5 px-3 font-medium">
+              <button onclick="openCustomerCard('${o.customerId}')" class="font-bold text-slate-800 hover:text-copper hover:underline text-left">
+                ${o.customerName}
+              </button>
+            </td>
             <td class="py-2.5 px-3 text-[10px]">${itemsDetail}</td>
             <td class="py-2.5 px-3 text-center"><span class="bg-amber-50 text-amber-800 border px-2 py-0.5 rounded-full text-[10px] font-black">${o.totalPoints} Poin</span></td>
             <td class="py-2.5 px-3 text-[11px]"><b>${formatRp(o.total)}</b><br><span class="text-emerald-600 text-[10px]">DP: ${formatRp(o.dp)}</span></td>
@@ -1465,10 +1723,10 @@
             </td>
             <td class="py-2.5 px-3 text-center">
               <div class="flex items-center justify-center gap-1">
-                <button onclick="printOrderReceipt('${o.id}')" class="p-1 hover:bg-slate-100 rounded text-slate-700"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button>
-                <button onclick="sendWhatsAppReceipt('${o.id}')" class="p-1 hover:bg-emerald-50 rounded text-emerald-600"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></button>
-                <button onclick="openOrderModal('${o.id}')" class="p-1 hover:bg-amber-50 rounded text-amber-600"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                <button onclick="deleteOrder('${o.id}')" class="p-1 hover:bg-rose-50 rounded text-rose-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                <button onclick="printOrderReceipt('${o.id}')" class="p-1 hover:bg-slate-100 rounded text-slate-700" title="Cetak Struk"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button>
+                <button onclick="sendWhatsAppReceipt('${o.id}')" class="p-1 hover:bg-emerald-50 rounded text-emerald-600" title="Kirim WA"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i></button>
+                <button onclick="openOrderModal('${o.id}')" class="p-1 hover:bg-amber-50 rounded text-amber-600" title="Edit Order"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                <button onclick="deleteOrder('${o.id}')" class="p-1 hover:bg-rose-50 rounded text-rose-400" title="Hapus Order"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
               </div>
             </td>
           </tr>
@@ -1534,7 +1792,12 @@
       const f = orders.filter(o => cleanDateStr(o.dateDue) === dateStr);
       if (!f.length) { el.innerHTML = `Tidak ada pesanan deadline pada ${dateStr}`; return; }
       el.innerHTML = `<div class="mb-2 font-bold text-slate-800">Deadline: ${dateStr} | Terisi: ${pts}/${appConfig.dailyCapacity} Poin (${percent}%)</div>` + 
-        f.map(o => `<span class="inline-block bg-slate-50 border rounded px-2.5 py-1.5 mr-1.5 mb-1.5 text-[11px]"><b>${o.customerName}</b> - ${o.totalPoints} Pt</span>`).join('');
+        f.map(o => `
+          <span class="inline-block bg-slate-50 border rounded px-2.5 py-1.5 mr-1.5 mb-1.5 text-[11px]">
+            <button onclick="openCustomerCard('${o.customerId}')" class="font-bold text-slate-900 hover:text-copper hover:underline">${o.customerName}</button> 
+            - ${o.totalPoints} Pt (${o.items?.length || 0} item)
+          </span>
+        `).join('');
     }
 
     function renderMonthlyChart() {
@@ -1924,7 +2187,11 @@
                 ${cleanDateStr(o.dateDue)}
                 ${isLate ? '<span class="ml-1 bg-rose-600 text-white text-[8px] px-1 rounded animate-pulse">Terlambat</span>' : ''}
               </td>
-              <td class="py-2.5 px-3 font-medium whitespace-nowrap">${o.customerName}</td>
+              <td class="py-2.5 px-3 font-medium whitespace-nowrap">
+                <button onclick="openCustomerCard('${o.customerId}')" class="font-bold text-slate-900 hover:text-copper hover:underline text-left">
+                  ${o.customerName}
+                </button>
+              </td>
               <td class="py-2.5 px-3 text-slate-500 truncate max-w-[150px]">${(o.items || []).map(i => i.material || i.desc).join(', ')}</td>
               <td class="py-2.5 px-3"><span class="capitalize text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800">${o.status}</span></td>
               <td class="py-2.5 px-3 font-bold text-rose-600 text-right whitespace-nowrap">${formatRp(o.remaining)}</td>
@@ -1943,7 +2210,6 @@
       renderCashflow();
     }
 
-    // Registrasi PWA Service Worker otomatis
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW register note:', err));
