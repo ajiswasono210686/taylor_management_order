@@ -95,21 +95,18 @@
     </button>
   </nav>
 
-  <!-- FLOATING ACTION BUTTONS (DINAMIS MENGIKUTI SCROLL LAYAR) -->
+  <!-- FLOATING ACTION BUTTONS -->
   <div class="fixed right-5 bottom-20 md:bottom-8 z-40 flex flex-col gap-3">
-    <!-- FAB Tambah Pelanggan (Hanya di Tab Pelanggan) -->
     <button id="fab-pelanggan" onclick="openCustomerModal()" class="hidden bg-copper hover:bg-amber-600 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
       <i data-lucide="user-plus" class="w-5 h-5"></i>
       <span class="text-xs font-bold pr-1 hidden sm:inline-block">Tambah Pelanggan</span>
     </button>
 
-    <!-- FAB Buat Order (Hanya di Tab Transaksi/Order) -->
     <button id="fab-transaksi" onclick="openOrderModal()" class="hidden bg-copper hover:bg-amber-600 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
       <i data-lucide="plus-circle" class="w-5 h-5"></i>
       <span class="text-xs font-bold pr-1 hidden sm:inline-block">Buat Order</span>
     </button>
 
-    <!-- FAB Catat Kas (Hanya di Tab Kasir) -->
     <button id="fab-kasir" onclick="openCashModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform active:scale-95 group border-2 border-white/20">
       <i data-lucide="plus-circle" class="w-5 h-5"></i>
       <span class="text-xs font-bold pr-1 hidden sm:inline-block">Catat Kas</span>
@@ -131,7 +128,6 @@
 
       <!-- 4 KARTU OPERASIONAL -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <!-- Order Aktif -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Order Aktif</p>
           <div class="flex items-center justify-between mt-1">
@@ -141,7 +137,6 @@
           <p class="text-[10px] text-slate-400 mt-1">Antrean & Jahit</p>
         </div>
 
-        <!-- Beban Kapasitas Hari Ini -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Beban Hari Ini</p>
           <div class="flex items-center justify-between mt-1">
@@ -151,7 +146,6 @@
           <p class="text-[10px] text-slate-400 mt-1" id="stat-capacity-target">Target: 0 Pt</p>
         </div>
 
-        <!-- Order Terlambat / Kritis -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Status Deadline</p>
           <div class="flex items-center justify-between mt-1">
@@ -161,7 +155,6 @@
           <p class="text-[10px] mt-1" id="stat-late-label">Semua Tepat Waktu</p>
         </div>
 
-        <!-- Total Pelanggan -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase">Pelanggan</p>
           <div class="flex items-center justify-between mt-1">
@@ -416,13 +409,14 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-lg sm:text-2xl font-bold text-slate-900">Kasir & Pembukuan</h2>
-          <p class="text-xs text-slate-500">Kas masuk & pengeluaran workshop</p>
+          <p class="text-xs text-slate-500">Kas masuk, pengeluaran workshop, dan grafik kategori bulanan</p>
         </div>
         <button onclick="openCashModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow">
           <i data-lucide="plus-circle" class="w-4 h-4"></i> Catat Kas
         </button>
       </div>
 
+      <!-- RINGKASAN KARTU TOTAL -->
       <div class="grid grid-cols-3 gap-2 sm:gap-4">
         <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
           <p class="text-[10px] font-semibold text-slate-400 uppercase">Uang Masuk</p>
@@ -438,12 +432,52 @@
         </div>
       </div>
 
+      <!-- BAGAN / GRAFIK KAS BULANAN BERDASARKAN KATEGORI -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-100">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i> Bagan Kas Bulanan per Kategori
+            </h3>
+            <p class="text-[11px] text-slate-400">Komposisi pos pemasukan dan alokasi pengeluaran bulanan</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Filter Jenis: Pengeluaran / Pemasukan -->
+            <div class="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-semibold">
+              <button onclick="setCashAnalyticsView('out')" id="btn-cash-view-out" class="px-2.5 py-1 rounded-md bg-white text-rose-600 shadow-sm transition">Pengeluaran</button>
+              <button onclick="setCashAnalyticsView('in')" id="btn-cash-view-in" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-emerald-700 transition">Pemasukan</button>
+            </div>
+
+            <!-- Kontrol Bulan -->
+            <div class="flex items-center gap-1">
+              <button onclick="changeCashCategoryMonth(-1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+              </button>
+              <span id="cash-category-month-label" class="text-xs font-bold text-slate-700 min-w-[95px] text-center bg-slate-50 px-2 py-1 border border-slate-200 rounded-lg">Bulan</span>
+              <button onclick="changeCashCategoryMonth(1)" class="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-200 transition">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wadah Grafik Kategori Bulanan -->
+        <div id="cash-category-chart-container" class="flex flex-col md:flex-row items-center justify-around gap-6 py-2"></div>
+      </div>
+
+      <!-- TABEL RIWAYAT KAS -->
       <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-3 border-b border-slate-100 flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-700">Buku Mutasi Kas</span>
+          <span class="text-[10px] text-slate-400">Diurutkan dari transaksi terbaru</span>
+        </div>
         <div class="overflow-x-auto no-scrollbar">
-          <table class="w-full text-xs text-left min-w-[450px]">
+          <table class="w-full text-xs text-left min-w-[500px]">
             <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] border-b border-slate-200">
               <tr>
                 <th class="py-2.5 px-3">Tanggal</th>
+                <th class="py-2.5 px-3">Kategori</th>
                 <th class="py-2.5 px-3">Keterangan</th>
                 <th class="py-2.5 px-3">Tipe</th>
                 <th class="py-2.5 px-3 text-right">Nominal</th>
@@ -467,7 +501,6 @@
         <form id="form-config" onsubmit="saveConfig(event)" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
-            <!-- Integrasi Cloud Sync -->
             <div class="sm:col-span-2 bg-amber-50/60 border border-amber-200 p-3.5 rounded-xl">
               <label class="block text-[11px] font-bold text-amber-900 mb-1 flex items-center gap-1.5">
                 <i data-lucide="link" class="w-3.5 h-3.5 text-copper"></i> URL Google Apps Script (Cloud Sync)
@@ -558,7 +591,6 @@
       </div>
 
       <div class="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
-        <!-- Rangkuman Singkat -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
           <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
             <span class="block text-[10px] text-slate-400 font-bold uppercase">Total Order</span>
@@ -578,7 +610,6 @@
           </div>
         </div>
 
-        <!-- Tabel Ukuran Pelanggan -->
         <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5">
           <div class="flex justify-between items-center mb-2">
             <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
@@ -589,7 +620,6 @@
           <div id="card-size-summary" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700"></div>
         </div>
 
-        <!-- Daftar Riwayat Orderan -->
         <div>
           <h4 class="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
             <i data-lucide="package" class="w-4 h-4 text-copper"></i> Riwayat Semua Pesanan
@@ -772,7 +802,7 @@
     </div>
   </div>
 
-  <!-- MODAL KASIR -->
+  <!-- MODAL KASIR (DENGAN KATEGORI DINAMIS) -->
   <div id="modal-cash" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50">
     <div class="bg-white w-full max-w-sm rounded-2xl p-4 sm:p-6 shadow-2xl">
       <h3 class="text-base font-bold text-slate-900 mb-3">Catat Kas Masuk / Keluar</h3>
@@ -783,14 +813,18 @@
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipe Transaksi</label>
-          <select id="cash-type" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+          <select id="cash-type" onchange="updateCategoryOptions()" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
             <option value="in">Uang Masuk (Pemasukan)</option>
-            <option value="out">Uang Keluar (Operasional / Bahan)</option>
+            <option value="out">Uang Keluar (Pengeluaran)</option>
           </select>
         </div>
         <div>
+          <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kategori</label>
+          <select id="cash-category" class="w-full border rounded-lg px-2.5 py-1.5 text-xs font-medium"></select>
+        </div>
+        <div>
           <label class="block text-[11px] font-semibold text-slate-600 mb-1">Keterangan</label>
-          <input type="text" id="cash-desc" required placeholder="Contoh: Beli bahan" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+          <input type="text" id="cash-desc" required placeholder="Contoh: Pembelian Benang & Jarum" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nominal (Rp)</label>
@@ -806,6 +840,21 @@
   </div>
 
   <script>
+    // Konfigurasi Kategori & Warna Palet Bagan
+    const CASH_CATEGORIES = {
+      in: [
+        { value: 'order', label: 'Order / Pesanan', color: '#10b981' }, // emerald
+        { value: 'pendapatan lain2', label: 'Pendapatan Lain-lain', color: '#06b6d4' } // cyan
+      ],
+      out: [
+        { value: 'alat dan bahan', label: 'Alat dan Bahan', color: '#f59e0b' }, // amber
+        { value: 'operasional', label: 'Operasional', color: '#6366f1' }, // indigo
+        { value: 'makan minum', label: 'Makan Minum', color: '#f97316' }, // orange
+        { value: 'gaji', label: 'Gaji', color: '#a855f7' }, // purple
+        { value: 'lain2', label: 'Lain-lain', color: '#64748b' } // slate
+      ]
+    };
+
     // State Konfigurasi Toko
     let appConfig = JSON.parse(localStorage.getItem('brkh_config')) || {
       storeName: "BRKH DENIM",
@@ -836,6 +885,10 @@
     let calendarCurrentDate = new Date();
     let dashChartDate = new Date();
     let dashYearDate = new Date();
+    
+    // State Bagan Kategori Kasir Bulanan
+    let cashCategoryMonthDate = new Date();
+    let cashAnalyticsActiveType = 'out'; // 'out' (pengeluaran) atau 'in' (pemasukan)
 
     const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -994,7 +1047,6 @@
       const mobBtn = document.getElementById('nav-m-' + tab);
       if (mobBtn) mobBtn.classList.add('text-amber-500', 'font-bold');
       
-      // Update FAB mengambang dinamis
       document.getElementById('fab-pelanggan').classList.add('hidden');
       document.getElementById('fab-transaksi').classList.add('hidden');
       document.getElementById('fab-kasir').classList.add('hidden');
@@ -1034,27 +1086,23 @@
       document.getElementById('card-cust-name').innerText = cust.name;
       document.getElementById('card-cust-phone').innerText = cust.phone || '-';
 
-      // Setup Tombol Chat WhatsApp
       const btnWa = document.getElementById('card-btn-wa');
       let cleanPhone = (cust.phone || '').replace(/\D/g, '');
       if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
       btnWa.onclick = () => window.open(`https://wa.me/${cleanPhone}`, '_blank');
 
-      // Setup Tombol Tambah Order Cepat
       const btnNewOrder = document.getElementById('card-btn-new-order');
       btnNewOrder.onclick = () => {
         closeModal('modal-customer-card');
         openOrderModal(null, cust.id);
       };
 
-      // Setup Tombol Edit Ukuran
       const btnEditSize = document.getElementById('card-btn-edit-size');
       btnEditSize.onclick = () => {
         closeModal('modal-customer-card');
         openCustomerModal(cust.id);
       };
 
-      // Tampilkan Ringkasan Ukuran
       const p = sizePants.find(x => x.customerId === cust.id) || {};
       const s = sizeShirts.find(x => x.customerId === cust.id) || {};
       const sk = sizeSkirts.find(x => x.customerId === cust.id) || {};
@@ -1109,7 +1157,6 @@
         sizeContainer.innerHTML = `<span class="text-slate-400 italic text-[11px] col-span-2">Belum ada rincian data ukuran. Klik "Edit Ukuran" untuk melengkapi.</span>`;
       }
 
-      // Hitung dan Tampilkan Seluruh Riwayat Order
       const custOrders = orders.filter(ord => ord.customerId === cust.id);
       let totalSpent = 0, totalRem = 0, activeCount = 0;
 
@@ -1560,11 +1607,13 @@
         };
         orders.push(orderData);
 
+        // Catat DP ke Kasir dengan Kategori 'order'
         if (dp > 0) {
           cashflow.unshift({
             id: Date.now(),
             date: dateIn || cleanDateStr(new Date()),
             type: 'in',
+            category: 'order',
             desc: `DP Order ${newOrderId} - ${orderData.customerName}`,
             amount: dp
           });
@@ -1592,13 +1641,14 @@
         return;
       }
 
-      if (confirm(`Lunasi pesanan ${order.id} (${order.customerName}) sebesar ${formatRp(remainingAmount)}?\nUang pelunasan akan otomatis dicatat ke Buku Kas.`)) {
+      if (confirm(`Lunasi pesanan ${order.id} (${order.customerName}) sebesar ${formatRp(remainingAmount)}?\nUang pelunasan akan otomatis dicatat ke Buku Kas (Kategori: Order).`)) {
         const today = cleanDateStr(new Date());
 
         cashflow.unshift({
           id: Date.now(),
           date: today,
           type: 'in',
+          category: 'order',
           desc: `Pelunasan ${order.id} - ${order.customerName}`,
           amount: remainingAmount
         });
@@ -1846,9 +1896,21 @@
 
     function renderSchedule() { renderCalendar(); renderMonthlyChart(); }
 
+    function updateCategoryOptions() {
+      const type = document.getElementById('cash-type').value;
+      const selectCat = document.getElementById('cash-category');
+      if (!selectCat) return;
+      selectCat.innerHTML = '';
+      const list = CASH_CATEGORIES[type] || [];
+      list.forEach(item => {
+        selectCat.innerHTML += `<option value="${item.value}">${item.label}</option>`;
+      });
+    }
+
     function openCashModal() {
       document.getElementById('form-cash').reset();
       document.getElementById('cash-date').value = new Date().toISOString().split('T')[0];
+      updateCategoryOptions();
       openModal('modal-cash');
     }
 
@@ -1858,6 +1920,7 @@
         id: Date.now(),
         date: cleanDateStr(document.getElementById('cash-date').value),
         type: document.getElementById('cash-type').value,
+        category: document.getElementById('cash-category').value,
         desc: document.getElementById('cash-desc').value,
         amount: Number(document.getElementById('cash-amount').value)
       });
@@ -1872,6 +1935,153 @@
       }
     }
 
+    function getCategoryBadge(cat, type) {
+      if (!cat) return `<span class="text-[10px] text-slate-400 italic">-</span>`;
+      
+      const categoryColorMap = {
+        'order': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        'pendapatan lain2': 'bg-teal-100 text-teal-800 border-teal-200',
+        'alat dan bahan': 'bg-amber-100 text-amber-800 border-amber-200',
+        'operasional': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+        'makan minum': 'bg-orange-100 text-orange-800 border-orange-200',
+        'gaji': 'bg-purple-100 text-purple-800 border-purple-200',
+        'lain2': 'bg-slate-100 text-slate-700 border-slate-200'
+      };
+
+      const color = categoryColorMap[cat.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200';
+      return `<span class="text-[9px] font-semibold px-2 py-0.5 rounded-full border ${color} uppercase tracking-wider">${cat}</span>`;
+    }
+
+    // ========================================================
+    // ANALITIK & BAGAN KAS BULANAN BERDASARKAN KATEGORI
+    // ========================================================
+    function changeCashCategoryMonth(offset) {
+      cashCategoryMonthDate.setMonth(cashCategoryMonthDate.getMonth() + offset);
+      renderCashCategoryChart();
+    }
+
+    function setCashAnalyticsView(type) {
+      cashAnalyticsActiveType = type;
+      const btnOut = document.getElementById('btn-cash-view-out');
+      const btnIn = document.getElementById('btn-cash-view-in');
+      
+      if (type === 'out') {
+        btnOut.className = "px-2.5 py-1 rounded-md bg-white text-rose-600 shadow-sm transition font-bold";
+        btnIn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-emerald-700 transition font-semibold";
+      } else {
+        btnIn.className = "px-2.5 py-1 rounded-md bg-white text-emerald-700 shadow-sm transition font-bold";
+        btnOut.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-rose-600 transition font-semibold";
+      }
+      renderCashCategoryChart();
+    }
+
+    function renderCashCategoryChart() {
+      const year = cashCategoryMonthDate.getFullYear();
+      const month = cashCategoryMonthDate.getMonth();
+      const lbl = document.getElementById('cash-category-month-label');
+      if (lbl) {
+        lbl.innerText = cashCategoryMonthDate.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+      }
+
+      const container = document.getElementById('cash-category-chart-container');
+      if (!container) return;
+
+      const targetType = cashAnalyticsActiveType; // 'in' atau 'out'
+      const categoriesConfig = CASH_CATEGORIES[targetType] || [];
+
+      // Filter kas berdasarkan bulan dan jenis transaksi
+      const monthlyItems = cashflow.filter(c => {
+        if (c.type !== targetType) return false;
+        const ds = cleanDateStr(c.date);
+        if (!ds) return false;
+        const parts = ds.split('-');
+        if (parts.length >= 2) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          return y === year && m === month;
+        }
+        return false;
+      });
+
+      // Hitung akumulasi per kategori
+      let categoryTotals = {};
+      categoriesConfig.forEach(cat => { categoryTotals[cat.value] = 0; });
+
+      let grandTotal = 0;
+      monthlyItems.forEach(item => {
+        const amt = Number(item.amount) || 0;
+        let cKey = (item.category || '').toLowerCase();
+        if (!categoryTotals.hasOwnProperty(cKey)) {
+          cKey = targetType === 'in' ? 'pendapatan lain2' : 'lain2';
+        }
+        categoryTotals[cKey] = (categoryTotals[cKey] || 0) + amt;
+        grandTotal += amt;
+      });
+
+      if (grandTotal === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs w-full bg-slate-50/70 border border-dashed border-slate-200 rounded-xl">
+            <i data-lucide="inbox" class="w-7 h-7 mx-auto mb-1.5 opacity-40"></i>
+            Tidak ada transaksi ${targetType === 'in' ? 'pemasukan' : 'pengeluaran'} yang tercatat pada ${lbl.innerText}.
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // Bangun segmentasi lingkaran donat SVG
+      let cumulativePercent = 0;
+      const svgSegments = categoriesConfig.map(cat => {
+        const val = categoryTotals[cat.value] || 0;
+        if (val === 0) return '';
+        const pct = (val / grandTotal) * 100;
+        const offset = -cumulativePercent;
+        cumulativePercent += pct;
+        return `<circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="${cat.color}" stroke-width="5" stroke-dasharray="${pct.toFixed(2)} ${(100 - pct).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"></circle>`;
+      }).join('');
+
+      // Bangun daftar bar visual per rincian kategori
+      const barsHtml = categoriesConfig.map(cat => {
+        const val = categoryTotals[cat.value] || 0;
+        const pct = grandTotal > 0 ? Math.round((val / grandTotal) * 100) : 0;
+        return `
+          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition">
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="flex items-center gap-2 font-bold text-slate-700">
+                <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                ${cat.label}
+              </span>
+              <div class="text-right">
+                <span class="font-black text-slate-900">${formatRp(val)}</span>
+                <span class="text-[10px] text-slate-400 ml-1">(${pct}%)</span>
+              </div>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+              <div class="h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${cat.color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="relative w-44 h-44 flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 42 42" class="w-full h-full -rotate-90">
+            <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#f1f5f9" stroke-width="5"></circle>
+            ${svgSegments}
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
+            <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400">Total ${targetType === 'in' ? 'Masuk' : 'Keluar'}</span>
+            <span class="text-xs sm:text-sm font-black ${targetType === 'in' ? 'text-emerald-700' : 'text-rose-700'} mt-0.5 truncate max-w-[130px]">${formatRp(grandTotal)}</span>
+            <span class="text-[8px] text-slate-400 font-medium">${lbl.innerText}</span>
+          </div>
+        </div>
+        <div class="flex-1 w-full max-w-md space-y-2">
+          ${barsHtml}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
     function renderCashflow() {
       let tIn = 0, tOut = 0;
       const tbody = document.getElementById('cashflow-table-body');
@@ -1881,10 +2091,12 @@
       cashflow.forEach(c => {
         const amt = Number(c.amount) || 0;
         if (c.type === 'in') tIn += amt; else tOut += amt;
+        
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="py-2.5 px-3 text-[10px]">${cleanDateStr(c.date)}</td>
-            <td class="py-2.5 px-3 font-medium">${c.desc}</td>
+            <td class="py-2.5 px-3 text-[10px] text-slate-500">${cleanDateStr(c.date)}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap">${getCategoryBadge(c.category, c.type)}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800">${c.desc}</td>
             <td class="py-2.5 px-3">
               <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${c.type==='in'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'}">
                 ${c.type==='in'?'Masuk':'Keluar'}
@@ -1894,7 +2106,7 @@
               ${c.type==='in'?'+':'-'} ${formatRp(amt)}
             </td>
             <td class="py-2.5 px-3 text-center">
-              <button onclick="deleteCash(${c.id})" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              <button onclick="deleteCash(${c.id})" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </td>
           </tr>
         `;
@@ -1903,6 +2115,8 @@
       const elIn = document.getElementById('cash-in-total'); if (elIn) elIn.innerText = formatRp(tIn);
       const elOut = document.getElementById('cash-out-total'); if (elOut) elOut.innerText = formatRp(tOut);
       const elBal = document.getElementById('cash-balance-total'); if (elBal) elBal.innerText = formatRp(tIn - tOut);
+      
+      renderCashCategoryChart();
       lucide.createIcons();
     }
 
