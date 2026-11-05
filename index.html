@@ -29,9 +29,12 @@
 
   <!-- TOP BAR HP -->
   <header class="md:hidden bg-denim-dark text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-30">
-    <div>
-      <span class="text-lg font-black tracking-wider app-title-display">BRKH DENIM</span>
-      <span class="text-[10px] block text-slate-400 font-medium">WORKSHOP APP</span>
+    <div class="flex items-center gap-2.5">
+      <img id="header-logo-mobile" src="" alt="Logo" class="w-8 h-8 object-contain rounded bg-white/10 hidden">
+      <div>
+        <span class="text-lg font-black tracking-wider app-title-display">BRKH DENIM</span>
+        <span class="text-[10px] block text-slate-400 font-medium">WORKSHOP APP</span>
+      </div>
     </div>
     <div class="flex items-center gap-2">
       <span id="sync-status-mobile" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">Lokal</span>
@@ -42,8 +45,13 @@
   <!-- SIDEBAR DESKTOP -->
   <aside class="hidden md:flex w-64 bg-denim-dark text-slate-200 flex-col shrink-0 shadow-xl h-screen sticky top-0">
     <div class="p-6 border-b border-slate-800">
-      <h1 class="text-2xl font-black tracking-wider text-white app-title-display">BRKH DENIM</h1>
-      <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Workshop Management</p>
+      <div class="flex items-center gap-3 mb-2">
+        <img id="header-logo-desktop" src="" alt="Logo" class="w-10 h-10 object-contain rounded bg-white/10 hidden">
+        <div>
+          <h1 class="text-xl font-black tracking-wider text-white app-title-display">BRKH DENIM</h1>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest">Workshop App</p>
+        </div>
+      </div>
       <div class="mt-3 flex items-center justify-between text-xs bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
         <span id="sync-status-desktop" class="text-slate-300">Status: Lokal</span>
         <button onclick="syncDataFromCloud()" title="Sinkron Ulang" class="text-amber-400 hover:text-amber-300">
@@ -520,14 +528,23 @@
               <input type="text" id="conf-tagline" class="w-full border rounded-lg px-3 py-2 text-xs">
             </div>
             
-            <div class="sm:col-span-2 flex items-center gap-4 border border-slate-200 p-3 rounded-lg bg-slate-50">
-              <div class="shrink-0">
-                <img id="logo-preview" src="" class="w-12 h-12 object-contain bg-white border rounded" alt="Logo">
+            <!-- LOGO PREVIEW & UPLOAD SECTION -->
+            <div class="sm:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4 border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+              <div class="shrink-0 flex items-center justify-center">
+                <div class="w-16 h-16 bg-white border border-slate-200 rounded-lg p-1 flex items-center justify-center shadow-sm overflow-hidden relative group">
+                  <img id="logo-preview" src="" class="max-w-full max-h-full object-contain hidden" alt="Logo Preview">
+                  <span id="logo-placeholder" class="text-[10px] text-slate-400 text-center font-medium">No Logo</span>
+                </div>
               </div>
-              <div class="flex-1">
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Logo Struk (Opsional)</label>
-                <input type="file" id="conf-logo" accept="image/png, image/jpeg" class="w-full text-xs" onchange="previewLogo(event)">
-                <p class="text-[9px] text-slate-500 mt-0.5">Maksimal 500kb agar penyimpanan tidak penuh.</p>
+              <div class="flex-1 space-y-1.5">
+                <label class="block text-[11px] font-bold text-slate-700">Logo Struk & Header</label>
+                <div class="flex items-center gap-2">
+                  <input type="file" id="conf-logo" accept="image/png, image/jpeg, image/webp" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer" onchange="previewLogo(event)">
+                  <button type="button" id="btn-remove-logo" onclick="removeLogo()" class="hidden px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-md text-xs font-semibold border border-rose-200 shrink-0 transition" title="Hapus Logo">
+                    Hapus
+                  </button>
+                </div>
+                <p class="text-[10px] text-slate-500">Mendukung format PNG / JPG / WEBP. Gambar otomatis dioptimasi agar hemat memori lokal.</p>
               </div>
             </div>
 
@@ -550,8 +567,8 @@
             </div>
           </div>
           <div class="pt-4 border-t mt-4 flex justify-between items-center">
-            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-xs font-bold w-full sm:w-auto transition">
-              Simpan Pengaturan
+            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-xs font-bold w-full sm:w-auto transition flex items-center justify-center gap-1.5 shadow">
+              <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan
             </button>
             <button type="button" onclick="testConnection()" class="text-xs font-semibold text-copper hover:underline hidden sm:inline-block">
               Tes Koneksi Cloud
@@ -843,15 +860,15 @@
     // Konfigurasi Kategori & Warna Palet Bagan
     const CASH_CATEGORIES = {
       in: [
-        { value: 'order', label: 'Order / Pesanan', color: '#10b981' }, // emerald
-        { value: 'pendapatan lain2', label: 'Pendapatan Lain-lain', color: '#06b6d4' } // cyan
+        { value: 'order', label: 'Order / Pesanan', color: '#10b981' },
+        { value: 'pendapatan lain2', label: 'Pendapatan Lain-lain', color: '#06b6d4' }
       ],
       out: [
-        { value: 'alat dan bahan', label: 'Alat dan Bahan', color: '#f59e0b' }, // amber
-        { value: 'operasional', label: 'Operasional', color: '#6366f1' }, // indigo
-        { value: 'makan minum', label: 'Makan Minum', color: '#f97316' }, // orange
-        { value: 'gaji', label: 'Gaji', color: '#a855f7' }, // purple
-        { value: 'lain2', label: 'Lain-lain', color: '#64748b' } // slate
+        { value: 'alat dan bahan', label: 'Alat dan Bahan', color: '#f59e0b' },
+        { value: 'operasional', label: 'Operasional', color: '#6366f1' },
+        { value: 'makan minum', label: 'Makan Minum', color: '#f97316' },
+        { value: 'gaji', label: 'Gaji', color: '#a855f7' },
+        { value: 'lain2', label: 'Lain-lain', color: '#64748b' }
       ]
     };
 
@@ -888,7 +905,7 @@
     
     // State Bagan Kategori Kasir Bulanan
     let cashCategoryMonthDate = new Date();
-    let cashAnalyticsActiveType = 'out'; // 'out' (pengeluaran) atau 'in' (pemasukan)
+    let cashAnalyticsActiveType = 'out';
 
     const formatRp = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -967,6 +984,7 @@
           const preservedUrl = appConfig.scriptUrl;
           appConfig = data.appConfig;
           appConfig.scriptUrl = preservedUrl;
+          currentLogoBase64 = appConfig.logo || "";
         }
         
         saveLocalData();
@@ -980,14 +998,19 @@
     }
 
     function saveLocalData() {
-      localStorage.setItem('brkh_customers', JSON.stringify(customers));
-      localStorage.setItem('brkh_orders', JSON.stringify(orders));
-      localStorage.setItem('brkh_cashflow', JSON.stringify(cashflow));
-      localStorage.setItem('brkh_size_pants', JSON.stringify(sizePants));
-      localStorage.setItem('brkh_size_shirts', JSON.stringify(sizeShirts));
-      localStorage.setItem('brkh_size_skirts', JSON.stringify(sizeSkirts));
-      localStorage.setItem('brkh_size_others', JSON.stringify(sizeOthers));
-      localStorage.setItem('brkh_config', JSON.stringify(appConfig));
+      try {
+        localStorage.setItem('brkh_customers', JSON.stringify(customers));
+        localStorage.setItem('brkh_orders', JSON.stringify(orders));
+        localStorage.setItem('brkh_cashflow', JSON.stringify(cashflow));
+        localStorage.setItem('brkh_size_pants', JSON.stringify(sizePants));
+        localStorage.setItem('brkh_size_shirts', JSON.stringify(sizeShirts));
+        localStorage.setItem('brkh_size_skirts', JSON.stringify(sizeSkirts));
+        localStorage.setItem('brkh_size_others', JSON.stringify(sizeOthers));
+        localStorage.setItem('brkh_config', JSON.stringify(appConfig));
+      } catch (e) {
+        console.warn("Storage full error saat menyimpan:", e);
+        alert("Penyimpanan lokal penuh. Pertimbangkan untuk memperkecil ukuran foto atau logo.");
+      }
     }
 
     async function saveData() {
@@ -1233,20 +1256,87 @@
       const cSoc = document.getElementById('conf-socmed'); if (cSoc) cSoc.value = appConfig.socialMedia || "";
       const cCap = document.getElementById('conf-capacity'); if (cCap) cCap.value = appConfig.dailyCapacity || 20;
       const cUrl = document.getElementById('conf-script-url'); if (cUrl) cUrl.value = appConfig.scriptUrl || "";
-      const lPrev = document.getElementById('logo-preview'); if (lPrev) lPrev.src = appConfig.logo || "";
+      
+      currentLogoBase64 = appConfig.logo || "";
+      updateLogoPreviews(currentLogoBase64);
+    }
+
+    function updateLogoPreviews(base64) {
+      const lPrev = document.getElementById('logo-preview');
+      const lPlaceholder = document.getElementById('logo-placeholder');
+      const btnRemove = document.getElementById('btn-remove-logo');
+      const headerMobile = document.getElementById('header-logo-mobile');
+      const headerDesktop = document.getElementById('header-logo-desktop');
+
+      if (base64 && base64.trim() !== "") {
+        if (lPrev) { lPrev.src = base64; lPrev.classList.remove('hidden'); }
+        if (lPlaceholder) lPlaceholder.classList.add('hidden');
+        if (btnRemove) btnRemove.classList.remove('hidden');
+
+        if (headerMobile) { headerMobile.src = base64; headerMobile.classList.remove('hidden'); }
+        if (headerDesktop) { headerDesktop.src = base64; headerDesktop.classList.remove('hidden'); }
+      } else {
+        if (lPrev) { lPrev.src = ""; lPrev.classList.add('hidden'); }
+        if (lPlaceholder) lPlaceholder.classList.remove('hidden');
+        if (btnRemove) btnRemove.classList.add('hidden');
+
+        if (headerMobile) { headerMobile.src = ""; headerMobile.classList.add('hidden'); }
+        if (headerDesktop) { headerDesktop.src = ""; headerDesktop.classList.add('hidden'); }
+      }
     }
 
     function previewLogo(event) {
       const file = event.target.files[0];
-      if (file) {
-        if (file.size > 500000) { alert("Ukuran file maksimal 500kb."); event.target.value = ""; return; }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentLogoBase64 = e.target.result;
-          const lPrev = document.getElementById('logo-preview');
-          if (lPrev) lPrev.src = currentLogoBase64;
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert("Pilih file gambar (PNG, JPG, atau WEBP).");
+        event.target.value = "";
+        return;
+      }
+
+      // Resize & compress otomatis dengan Canvas agar hemat memori localStorage
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 300; // Ukuran resolusi ideal untuk logo struk/header
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Simpan dengan kualitas optimal
+          currentLogoBase64 = canvas.toDataURL('image/png', 0.9);
+          updateLogoPreviews(currentLogoBase64);
         };
-        reader.readAsDataURL(file);
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeLogo() {
+      if (confirm("Hapus logo toko?")) {
+        currentLogoBase64 = "";
+        const fileInput = document.getElementById('conf-logo');
+        if (fileInput) fileInput.value = "";
+        updateLogoPreviews("");
       }
     }
 
@@ -1255,18 +1345,18 @@
       const newUrl = (document.getElementById('conf-script-url')?.value || "").trim();
 
       appConfig = {
-        storeName: document.getElementById('conf-name').value,
-        tagline: document.getElementById('conf-tagline').value,
-        address: document.getElementById('conf-address').value,
-        phone: document.getElementById('conf-phone').value,
-        socialMedia: document.getElementById('conf-socmed').value,
+        storeName: document.getElementById('conf-name').value.trim() || "BRKH DENIM",
+        tagline: document.getElementById('conf-tagline').value.trim(),
+        address: document.getElementById('conf-address').value.trim(),
+        phone: document.getElementById('conf-phone').value.trim(),
+        socialMedia: document.getElementById('conf-socmed').value.trim(),
         dailyCapacity: Number(document.getElementById('conf-capacity').value) || 20,
         scriptUrl: newUrl,
-        logo: currentLogoBase64
+        logo: currentLogoBase64 || ""
       };
       
-      saveLocalData();
-      alert("Pengaturan Toko berhasil disimpan!");
+      saveData();
+      alert("Pengaturan Toko dan Logo berhasil disimpan!");
       loadConfigUI();
 
       if (newUrl) {
@@ -1607,7 +1697,6 @@
         };
         orders.push(orderData);
 
-        // Catat DP ke Kasir dengan Kategori 'order'
         if (dp > 0) {
           cashflow.unshift({
             id: Date.now(),
@@ -1688,7 +1777,7 @@
         </tr>
       `).join('');
       
-      const logoHtml = appConfig.logo ? `<img src="${appConfig.logo}" style="max-height: 45px; margin-right: 12px; object-fit: contain;">` : '';
+      const logoHtml = appConfig.logo ? `<img src="${appConfig.logo}" style="max-height: 48px; max-width: 120px; margin-right: 12px; object-fit: contain;">` : '';
 
       const pr = window.open('', '_blank');
       pr.document.write(`
@@ -1986,10 +2075,9 @@
       const container = document.getElementById('cash-category-chart-container');
       if (!container) return;
 
-      const targetType = cashAnalyticsActiveType; // 'in' atau 'out'
+      const targetType = cashAnalyticsActiveType;
       const categoriesConfig = CASH_CATEGORIES[targetType] || [];
 
-      // Filter kas berdasarkan bulan dan jenis transaksi
       const monthlyItems = cashflow.filter(c => {
         if (c.type !== targetType) return false;
         const ds = cleanDateStr(c.date);
@@ -2003,7 +2091,6 @@
         return false;
       });
 
-      // Hitung akumulasi per kategori
       let categoryTotals = {};
       categoriesConfig.forEach(cat => { categoryTotals[cat.value] = 0; });
 
@@ -2029,7 +2116,6 @@
         return;
       }
 
-      // Bangun segmentasi lingkaran donat SVG
       let cumulativePercent = 0;
       const svgSegments = categoriesConfig.map(cat => {
         const val = categoryTotals[cat.value] || 0;
@@ -2040,7 +2126,6 @@
         return `<circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="${cat.color}" stroke-width="5" stroke-dasharray="${pct.toFixed(2)} ${(100 - pct).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"></circle>`;
       }).join('');
 
-      // Bangun daftar bar visual per rincian kategori
       const barsHtml = categoriesConfig.map(cat => {
         const val = categoryTotals[cat.value] || 0;
         const pct = grandTotal > 0 ? Math.round((val / grandTotal) * 100) : 0;
