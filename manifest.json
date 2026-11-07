@@ -1,7 +1,7 @@
 {
-  "name": "taylor management order",
-  "short_name": "TMO",
-  "description": "Aplikasi Manajemen Workshop & Kasir Penjahit",
+  "name": "taylor order management",
+  "short_name": "TOM",
+  "description": "Tailor Workshop Management & POS System",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#111a26",
